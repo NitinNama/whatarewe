@@ -1,0 +1,8 @@
+{
+  "name": "Indus",
+  "description": "Upload your chat logs for an honest, AI-powered analysis of your relationship dynamics by your witty virtual friend.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
