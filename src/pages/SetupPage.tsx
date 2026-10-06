@@ -26,12 +26,14 @@ const RELATIONSHIP_OPTIONS: RelationshipType[] = [
 ];
 
 const LOADING_MESSAGES = [
-  'Indus is reading every message... and judging... kindly.',
-  'Calculating who double-texts and who replies 4 hours later...',
-  'Checking how many conversations only happen after 11:00 PM...',
-  'Cross-referencing "sorry crazy week at work" against weekend activity...',
-  'Drafting your Character Profiles, Shift timeline, and Awards...',
-  'Writing Indus’s final honest voice-note verdict...',
+  'Cross-referencing your 2am texts with your 10am energy.',
+  'Calculating who cared more down to three decimal places.',
+  'Measuring the awkwardness of that 14-hour reply gap.',
+  'Auditing your emoji usage for emotional deflection...',
+  'Flagging all messages sent from an Uber after midnight.',
+  'Checking if "haha yeah totally" meant "I am devastated".',
+  'Drafting unvarnished character assessments for the personnel file...',
+  'Composing the closing verdict and life advice...',
 ];
 
 export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, onReportGenerated }) => {
@@ -53,7 +55,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
     if (!isAnalyzing) return;
     const interval = setInterval(() => {
       setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 2800);
+    }, 3000);
     return () => clearInterval(interval);
   }, [isAnalyzing]);
 

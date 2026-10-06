@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   ArrowRight,
   ArrowLeft,
@@ -24,6 +24,13 @@ import {
   FileDown,
   Loader2,
   X,
+  Smartphone,
+  Monitor,
+  Lock,
+  Unlock,
+  CreditCard,
+  Copy,
+  HelpCircle,
 } from 'lucide-react';
 import indusAvatar from '../assets/images/avatar_indus_friend_1791121741937.jpg';
 import { StoredReport, CharacterProfileBlock } from '../types';
@@ -45,10 +52,32 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const TOTAL_SLIDES = 7;
 
+  // Mobile UX: Phone mockup frame & touch swipe state
+  const [phoneFrameMode, setPhoneFrameMode] = useState<boolean>(false);
+  const touchStartXRef = useRef<number | null>(null);
+
+  // Monetization & Paywall States
+  const [isPaid, setIsPaid] = useState<boolean>(reportData.isPaid || isSample || false);
+  const [showPaywallModal, setShowPaywallModal] = useState<boolean>(false);
+  const [isUnlocking, setIsUnlocking] = useState<boolean>(false);
+
   // PDF Export States
   const [showExportModal, setShowExportModal] = useState(false);
   const [isPdfExporting, setIsPdfExporting] = useState(false);
   const [pdfProgress, setPdfProgress] = useState({ percent: 0, stage: '' });
+  const [pdfErrorMessage, setPdfErrorMessage] = useState<string | null>(null);
+
+  // Hot Take Deep Dive / Conspiracy Theory Modal States
+  const [selectedHotTake, setSelectedHotTake] = useState<string | null>(null);
+  const [isGeneratingTheory, setIsGeneratingTheory] = useState<boolean>(false);
+  const [theoryData, setTheoryData] = useState<{
+    conspiracyTitle: string;
+    theory: string;
+    evidencePoints: string[];
+    uncomfortableTruth: string;
+  } | null>(null);
+  const [theoriesCache, setTheoriesCache] = useState<Record<string, any>>({});
+  const [theoryCopied, setTheoryCopied] = useState(false);
 
   const [copied, setCopied] = useState(false);
   const [question, setQuestion] = useState('');
@@ -62,6 +91,65 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
   ]);
   const [isAsking, setIsAsking] = useState(false);
 
+  const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(12);
+      } catch {}
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartXRef.current;
+    if (Math.abs(diff) > 42) {
+      if (diff < 0) {
+        handleNextSlide();
+      } else {
+        handlePrevSlide();
+      }
+    }
+    touchStartXRef.current = null;
+  };
+
+  const handleNextSlide = () => {
+    triggerHaptic();
+    if (currentSlide < 3 || isPaid) {
+      setCurrentSlide((prev) => Math.min(TOTAL_SLIDES - 1, prev + 1));
+    } else {
+      setShowPaywallModal(true);
+    }
+  };
+
+  const handlePrevSlide = () => {
+    triggerHaptic();
+    setCurrentSlide((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleSelectSlide = (idx: number) => {
+    triggerHaptic();
+    if (idx <= 3 || isPaid) {
+      setCurrentSlide(idx);
+    } else {
+      setShowPaywallModal(true);
+    }
+  };
+
+  const handleUnlockPaidReport = async () => {
+    setIsUnlocking(true);
+    try {
+      await fetch(`/api/reports/${id}/unlock`, { method: 'POST' });
+    } catch {}
+    setIsPaid(true);
+    setIsUnlocking(false);
+    setShowPaywallModal(false);
+    triggerHaptic();
+  };
+
   const handleCopyShareLink = () => {
     const shareUrl = `${window.location.origin}/?report=${id}`;
     navigator.clipboard.writeText(shareUrl);
@@ -72,6 +160,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
   const handleDownloadPdf = async () => {
     if (isPdfExporting) return;
     setIsPdfExporting(true);
+    setPdfErrorMessage(null);
     setPdfProgress({ percent: 5, stage: 'Compiling dossier data...' });
 
     try {
@@ -80,13 +169,13 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         throw new Error('Dossier DOM element not found');
       }
 
-      const pNames = stats.participants.map((p) => p.name.toLowerCase().replace(/[^a-z0-9]/g, '-')).join('-');
+      const pNames = (stats.participants || []).map((p) => p.name.toLowerCase().replace(/[^a-z0-9]/g, '-')).join('-');
       const filename = `indus-relationship-report-${pNames || 'analysis'}.pdf`;
 
       await generatePdfFromElement({
         element: el,
         filename,
-        reportTitle: `Indus · ${relationshipType} (${stats.participants.map((p) => p.name).join(' & ')})`,
+        reportTitle: `Indus · ${relationshipType} (${(stats.participants || []).map((p) => p.name).join(' & ')})`,
         onProgress: (percent, stage) => {
           setPdfProgress({ percent, stage });
         },
@@ -96,9 +185,9 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         setIsPdfExporting(false);
         setShowExportModal(false);
       }, 700);
-    } catch (err) {
+    } catch (err: any) {
       console.error('PDF export failed:', err);
-      alert('Direct PDF generation encountered an issue. You can also choose "Print / Save as PDF" from the export menu.');
+      setPdfErrorMessage(err?.message || 'Direct PDF generation encountered an issue. You can use "Print / Save as PDF" instead.');
       setIsPdfExporting(false);
     }
   };
@@ -145,9 +234,71 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
     }
   };
 
-  const p1 = stats.participants[0] || { name: 'Person A', messageCount: 100, initiationPercent: 65, avgReplyMinutes: 6 };
-  const p2 = stats.participants[1] || { name: 'Person B', messageCount: 50, initiationPercent: 35, avgReplyMinutes: 60 };
-  const totalMsgs = stats.totalMessages || p1.messageCount + p2.messageCount;
+  const handleOpenHotTakeModal = async (take: string) => {
+    triggerHaptic();
+    setSelectedHotTake(take);
+    setTheoryCopied(false);
+
+    if (theoriesCache[take]) {
+      setTheoryData(theoriesCache[take]);
+      return;
+    }
+
+    setIsGeneratingTheory(true);
+    setTheoryData(null);
+
+    try {
+      const res = await fetch('/api/hot-take-deep-dive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reportId: id,
+          hotTake: take,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to generate deep dive');
+      const data = await res.json();
+      setTheoryData(data);
+      setTheoriesCache((prev) => ({ ...prev, [take]: data }));
+    } catch {
+      const fallback = {
+        conspiracyTitle: 'The Unspoken Pacing Agreement',
+        theory: `This hot take cuts straight through the polite cover story. Neither of you is confused about where this stands; you're both running an unspoken psychological hedge to avoid the vulnerability of daylight clarity.`,
+        evidencePoints: [
+          'The delayed reaction: replies are scheduled according to perceived leverage rather than actual availability.',
+          'The humor shield: whenever conversations approach genuine emotional stakes, a meme or self-deprecating joke is immediately deployed.',
+          'The silent consensus: staying in situationship limbo feels safer than risking a definitive answer.'
+        ],
+        uncomfortableTruth: 'The silence isn\'t confusion; it\'s strategy.'
+      };
+      setTheoryData(fallback);
+      setTheoriesCache((prev) => ({ ...prev, [take]: fallback }));
+    } finally {
+      setIsGeneratingTheory(false);
+    }
+  };
+
+  const handleCopyTheory = () => {
+    if (!theoryData) return;
+    const textToCopy = `🌶️ BRANDON'S CONSPIRACY DOSSIER:\n"${selectedHotTake}"\n\n📁 ${theoryData.conspiracyTitle}\n\n${theoryData.theory}\n\nReceipts:\n${theoryData.evidencePoints.map((e) => `• ${e}`).join('\n')}\n\nUncomfortable Truth: ${theoryData.uncomfortableTruth}`;
+    navigator.clipboard.writeText(textToCopy);
+    setTheoryCopied(true);
+    setTimeout(() => setTheoryCopied(false), 2000);
+  };
+
+  const handleAskAboutHotTake = (take: string) => {
+    setSelectedHotTake(null);
+    setQuestion(`Brandon, what is the real psychology behind this hot take: "${take}"?`);
+    const qaEl = document.getElementById('brandon-qa-section');
+    if (qaEl) {
+      qaEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const p1 = stats?.participants?.[0] || { name: 'Person A', messageCount: 100, initiationPercent: 65, avgReplyMinutes: 6 };
+  const p2 = stats?.participants?.[1] || { name: 'Person B', messageCount: 50, initiationPercent: 35, avgReplyMinutes: 60 };
+  const totalMsgs = stats?.totalMessages || p1.messageCount + p2.messageCount;
   const p1MsgPct = Math.round((p1.messageCount / Math.max(1, totalMsgs)) * 100);
   const p2MsgPct = 100 - p1MsgPct;
 
@@ -521,12 +672,55 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
       {/* Hot Takes 🌶️ */}
       {(report.hotTakes || []).length > 0 && (
-        <div className="bg-[#FFF7ED] rounded-3xl p-7 border border-orange-200 shadow-xs space-y-3 avoid-break">
-          <span className="text-xs font-mono text-orange-900 uppercase tracking-wider font-semibold block">HOT TAKES 🌶️</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="bg-[#FFF7ED] rounded-3xl p-7 border border-orange-200 shadow-xs space-y-4 avoid-break">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-orange-600" />
+              <span className="text-xs font-mono text-orange-900 uppercase tracking-wider font-semibold">HOT TAKES 🌶️</span>
+            </div>
+            <span className="text-[11px] font-mono text-orange-800 bg-orange-100/90 border border-orange-300/70 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 w-fit">
+              <Sparkles className="w-3 h-3 text-orange-600" />
+              <span>Click any take to unlock AI Conspiracy Theory 🕵️‍♂️</span>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {report.hotTakes.map((take, idx) => (
-              <div key={idx} className="p-3.5 rounded-xl bg-white border border-orange-200/80 text-xs text-zinc-800 italic">
-                “{take}”
+              <div
+                key={idx}
+                onClick={() => handleOpenHotTakeModal(take)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOpenHotTakeModal(take);
+                  }
+                }}
+                className="p-4 rounded-2xl bg-white border border-orange-200/90 shadow-2xs hover:border-orange-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group flex flex-col justify-between text-left select-none"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-orange-600 uppercase tracking-wider">
+                      TAKE #{idx + 1}
+                    </span>
+                    <span className="text-[10px] font-mono text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 font-medium">
+                      <span>Declassify</span>
+                      <span>→</span>
+                    </span>
+                  </div>
+                  <p className="font-editorial text-sm sm:text-base text-zinc-900 italic leading-snug">
+                    “{take}”
+                  </p>
+                </div>
+
+                <div className="pt-3 mt-3 border-t border-orange-100/80 flex items-center justify-between text-[11px] font-mono text-orange-700/80 group-hover:text-orange-900">
+                  <span className="inline-flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide">
+                    <span>Expand Deep Dive</span>
+                    <Sparkles className="w-3 h-3 text-orange-500 group-hover:scale-125 transition-transform" />
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-sans">Tap to expand</span>
+                </div>
               </div>
             ))}
           </div>
@@ -681,7 +875,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       </div>
 
       {/* Interactive Q&A: Ask Brandon about this chat (hidden in printed PDF) */}
-      <div className="bg-white rounded-3xl p-7 border border-zinc-200/80 shadow-xs space-y-4 no-print avoid-break">
+      <div id="brandon-qa-section" className="bg-white rounded-3xl p-7 border border-zinc-200/80 shadow-xs space-y-4 no-print avoid-break">
         <h3 className="text-lg font-editorial text-zinc-900">Ask Brandon about this chat</h3>
         <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
           {qaHistory.map((m, i) => (
@@ -819,7 +1013,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           </div>
           <div>
             <p className="text-slate-400">Peak Month</p>
-            <p className="text-lg font-semibold text-white mt-0.5">{stats.monthlyTimeline[0]?.month || 'Jan 2026'}</p>
+            <p className="text-lg font-semibold text-white mt-0.5">{stats.monthlyTimeline?.[0]?.month || 'Jan 2026'}</p>
           </div>
         </div>
       </div>
@@ -1046,11 +1240,45 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         </p>
       </div>
 
-      {/* Character Profiles with WhatsApp Green Bubbles */}
-      {renderCharacterProfilesSection()}
+      {/* Gated Premium Dossier Sections */}
+      {!isPaid && !isSample ? (
+        <div className="bg-gradient-to-b from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-8 sm:p-10 text-center space-y-5 shadow-md avoid-break my-8">
+          <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-900 flex items-center justify-center mx-auto">
+            <Lock className="w-7 h-7 text-amber-700" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-900 font-semibold block">PREMIUM CHAPTERS LOCKED</span>
+            <h3 className="text-2xl sm:text-3xl font-editorial text-zinc-900 mt-1 font-semibold">
+              Unlock The Complete Relationship Autopsy
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 max-w-lg mx-auto mt-2">
+              Unlock the remaining 14 chapters including The Personnel File with verbatim WhatsApp green bubbles, The Subtext Reader, Conflict Resolution, and Full Multi-Page PDF Download.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => setShowPaywallModal(true)}
+              className="px-6 py-3 rounded-full bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer shadow-sm"
+            >
+              Unlock Full Access — $4.99
+            </button>
+            <button
+              onClick={handleUnlockPaidReport}
+              className="px-4 py-3 rounded-full bg-white text-zinc-800 border border-zinc-200 text-xs font-medium hover:bg-zinc-50 transition-colors cursor-pointer"
+            >
+              Instant Demo Unlock
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Character Profiles with WhatsApp Green Bubbles */}
+          {renderCharacterProfilesSection()}
 
-      {/* Deep Dossier Remaining Sections */}
-      {renderDeepDossierContent()}
+          {/* Deep Dossier Remaining Sections */}
+          {renderDeepDossierContent()}
+        </>
+      )}
 
       {/* Verification Footer for Print/PDF */}
       <div className="border-t border-zinc-200/80 pt-6 mt-12 text-center text-xs text-zinc-400 font-mono avoid-break">
@@ -1090,10 +1318,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <span className="text-zinc-600 font-medium text-[9px] uppercase tracking-wide">{analysisGradeInfo.descriptor}</span>
             </div>
 
+            {/* 30-Day Archive Badge */}
+            <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
+              <Clock className="w-2.5 h-2.5" />
+              <span>30-Day Archive</span>
+            </span>
+
             {isSample && <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[10px]">Sample</span>}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             {/* View Mode Switcher */}
             <div className="flex items-center bg-zinc-100 p-1 rounded-full border border-zinc-200">
               <button
@@ -1114,6 +1348,39 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               </button>
             </div>
 
+            {/* Mobile / Phone Frame Mode Toggle */}
+            <button
+              onClick={() => {
+                triggerHaptic();
+                setPhoneFrameMode((prev) => !prev);
+              }}
+              title={phoneFrameMode ? 'Switch to wide view' : 'Switch to phone mockup view'}
+              className={`px-2.5 py-1 rounded-full border transition-colors inline-flex items-center gap-1 cursor-pointer text-xs ${
+                phoneFrameMode
+                  ? 'bg-zinc-900 text-white border-zinc-900 shadow-2xs font-semibold'
+                  : 'bg-white text-zinc-600 hover:text-zinc-900 border-zinc-200'
+              }`}
+            >
+              {phoneFrameMode ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{phoneFrameMode ? 'Phone Frame' : 'Wide'}</span>
+            </button>
+
+            {/* Paywall Unlock Pill */}
+            {!isPaid && !isSample ? (
+              <button
+                onClick={() => setShowPaywallModal(true)}
+                className="px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-medium inline-flex items-center gap-1 text-[11px] shadow-2xs transition-colors cursor-pointer"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Unlock ($4.99)</span>
+              </button>
+            ) : (
+              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[10px] inline-flex items-center gap-1">
+                <Unlock className="w-2.5 h-2.5 text-emerald-600" />
+                <span>Unlocked</span>
+              </span>
+            )}
+
             {/* Share Link */}
             <button
               onClick={handleCopyShareLink}
@@ -1126,7 +1393,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             {/* Export PDF Button (opens modal) */}
             <button
               onClick={() => setShowExportModal(true)}
-              className="hover:text-zinc-900 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium"
+              className="hover:text-zinc-900 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs"
             >
               <FileDown className="w-3.5 h-3.5" />
               <span>Export PDF</span>
@@ -1138,26 +1405,39 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         {viewMode === 'slides' && (
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center gap-1.5 w-full">
-              {Array.from({ length: TOTAL_SLIDES }).map((_, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setCurrentSlide(idx)}
-                  className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200 cursor-pointer transition-colors"
-                >
+              {Array.from({ length: TOTAL_SLIDES }).map((_, idx) => {
+                const isLocked = !isPaid && !isSample && idx >= 3;
+                return (
                   <div
-                    className={`h-full transition-all duration-300 ${
-                      idx < currentSlide
-                        ? 'bg-zinc-900 w-full'
-                        : idx === currentSlide
-                        ? 'bg-zinc-900 w-full'
-                        : 'w-0'
-                    }`}
-                  />
-                </div>
-              ))}
+                    key={idx}
+                    onClick={() => handleSelectSlide(idx)}
+                    className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200 cursor-pointer transition-colors relative"
+                    title={isLocked ? `Slide ${idx + 1} (Locked - Tap to Unlock)` : `Slide ${idx + 1}`}
+                  >
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        idx < currentSlide
+                          ? 'bg-zinc-900 w-full'
+                          : idx === currentSlide
+                          ? isLocked
+                            ? 'bg-amber-500 w-full'
+                            : 'bg-zinc-900 w-full'
+                          : 'w-0'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
             </div>
             <div className="flex justify-between items-center text-[11px] font-mono text-zinc-400">
-              <span>Slide {currentSlide + 1} of {TOTAL_SLIDES}</span>
+              <span className="flex items-center gap-1">
+                <span>Slide {currentSlide + 1} of {TOTAL_SLIDES}</span>
+                {!isPaid && !isSample && currentSlide >= 3 && (
+                  <span className="text-amber-600 font-semibold inline-flex items-center gap-0.5">
+                    <Lock className="w-2.5 h-2.5" /> Premium
+                  </span>
+                )}
+              </span>
               <span>
                 {currentSlide === 0 && 'Heatmap Archive'}
                 {currentSlide === 1 && 'Talk & Initiation Ratios'}
@@ -1180,10 +1460,22 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           /* ========================================================= */
           renderFullDossier(true)
         ) : (
-          /* ========================================================= */
-          /* SLIDE-BY-SLIDE STORY MODE (Slides 1 to 7) */
-          /* ========================================================= */
-          <div className="no-print w-full">
+          <>
+            {/* ========================================================= */}
+            {/* SLIDE-BY-SLIDE STORY MODE (Slides 1 to 7) */}
+            {/* ========================================================= */}
+            <div
+              className={`no-print w-full transition-all duration-300 ${
+              phoneFrameMode
+                ? 'max-w-[430px] mx-auto border-4 border-zinc-800 rounded-[44px] p-4 sm:p-5 bg-zinc-950/5 shadow-2xl relative my-3'
+                : ''
+            }`}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {phoneFrameMode && (
+              <div className="w-24 h-3.5 bg-zinc-800 rounded-full mx-auto mb-4 shrink-0 shadow-inner" />
+            )}
             {/* SLIDE 1: "Your years, day by day." (Dark Navy Heatmap) */}
             {currentSlide === 0 && (
               <div className="w-full bg-[#0C1222] text-white rounded-3xl p-7 sm:p-10 shadow-xl border border-slate-800 flex flex-col justify-between min-h-[500px]">
@@ -1249,7 +1541,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   </div>
                   <div>
                     <p className="text-slate-400">Peak Month</p>
-                    <p className="text-lg font-semibold text-white mt-0.5">{stats.monthlyTimeline[0]?.month || 'Jan 2026'}</p>
+                    <p className="text-lg font-semibold text-white mt-0.5">{stats.monthlyTimeline?.[0]?.month || 'Jan 2026'}</p>
                   </div>
                 </div>
               </div>
@@ -1538,7 +1830,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                     </div>
 
                     <button
-                      onClick={() => setCurrentSlide(4)}
+                      onClick={() => handleSelectSlide(4)}
                       className="mt-4 w-full py-3 bg-zinc-900 text-white rounded-full text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 shadow-xs"
                     >
                       <span>See Brandon’s Monologue →</span>
@@ -1580,7 +1872,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 <div className="mt-8 pt-6 border-t border-zinc-200/60 flex items-center justify-between text-xs text-zinc-500 font-mono">
                   <span>{p1.name} & {p2.name}</span>
                   <button
-                    onClick={() => setCurrentSlide(5)}
+                    onClick={() => handleSelectSlide(5)}
                     className="text-zinc-900 font-semibold underline underline-offset-4 hover:text-zinc-600 transition-colors cursor-pointer inline-flex items-center gap-1"
                   >
                     <span>Read The Personnel File →</span>
@@ -1596,7 +1888,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 {renderCharacterProfilesSection()}
                 <div className="flex justify-end pt-2">
                   <button
-                    onClick={() => setCurrentSlide(6)}
+                    onClick={() => handleSelectSlide(6)}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer shadow-xs"
                   >
                     <span>Read The Complete Dossier →</span>
@@ -1623,14 +1915,20 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* 3. Bottom Slide-by-Slide Navigation Bar (in 'slides' mode) */}
+          {/* Always-mounted printable dossier for PDF generation & native print */}
+          <div className="fixed -left-[9999px] top-0 w-[820px] pointer-events-none opacity-100 print:static print:left-auto print:w-full print:block">
+            {renderFullDossier(true)}
+          </div>
+        </>
+      )}
+    </div>
+
+    {/* 3. Bottom Slide-by-Slide Navigation Bar (in 'slides' mode) */}
       {viewMode === 'slides' && (
         <div className="w-full pt-6 border-t border-zinc-200/80 flex items-center justify-between no-print mt-6">
           <button
-            onClick={() => setCurrentSlide((prev) => Math.max(0, prev - 1))}
+            onClick={handlePrevSlide}
             disabled={currentSlide === 0}
             className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 disabled:opacity-30 disabled:hover:text-zinc-600 transition-colors cursor-pointer"
           >
@@ -1642,7 +1940,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrentSlide(i)}
+                onClick={() => handleSelectSlide(i)}
                 className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
                   i === currentSlide ? 'bg-zinc-900 w-5' : 'bg-zinc-300 hover:bg-zinc-400'
                 }`}
@@ -1653,7 +1951,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
           {currentSlide < TOTAL_SLIDES - 1 ? (
             <button
-              onClick={() => setCurrentSlide((prev) => Math.min(TOTAL_SLIDES - 1, prev + 1))}
+              onClick={handleNextSlide}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer shadow-xs"
             >
               <span>Continue</span>
@@ -1667,6 +1965,85 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <span>Analyze Another Chat →</span>
             </button>
           )}
+        </div>
+      )}
+
+      {/* Paywall Unlock Modal */}
+      {showPaywallModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 no-print animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-zinc-200 space-y-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold block">
+                  WHATARWE FULL PASS
+                </span>
+                <h3 className="text-2xl font-editorial text-zinc-900 mt-1 font-semibold">
+                  Unlock Full Relationship Dossier
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Access all 18 chapters, verbatim WhatsApp evidence bubbles, and printable PDF archive.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowPaywallModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 bg-[#FAF9F6] p-4 rounded-2xl border border-zinc-200 text-xs text-zinc-700">
+              <p className="font-semibold text-zinc-900 text-xs">Included in the Full Pass:</p>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>The Personnel File</strong> with inline WhatsApp green bubbles & double ticks</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>The Subtext Reader</strong> (what was texted vs what was felt)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>The Vibe Timeline & The Shift</strong> turning point analysis</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>Compatibility Score Gauge & Soundtrack</strong> playlist</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>Multi-Page A4 PDF Export</strong> with Analysis Grade letterhead</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong>Unlimited Follow-Up Q&A</strong> with Brandon</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2.5">
+              <button
+                onClick={handleUnlockPaidReport}
+                disabled={isUnlocking}
+                className="w-full py-3.5 px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm disabled:opacity-50"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>{isUnlocking ? 'Unlocking Dossier...' : 'Unlock Full Access — $4.99 One-Time'}</span>
+              </button>
+              <button
+                onClick={handleUnlockPaidReport}
+                className="w-full py-2.5 px-4 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-[11px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Instant Demo Unlock (Free Preview Pass)</span>
+              </button>
+            </div>
+
+            <div className="text-[10px] text-zinc-400 font-mono text-center pt-2 border-t border-zinc-100">
+              One-time purchase · No recurring charges · 30-day private archive access
+            </div>
+          </div>
         </div>
       )}
 
@@ -1711,6 +2088,11 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               </div>
             ) : (
               <div className="space-y-3">
+                {pdfErrorMessage && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs">
+                    {pdfErrorMessage}
+                  </div>
+                )}
                 {/* Option 1: Direct File Download */}
                 <button
                   onClick={handleDownloadPdf}
@@ -1748,6 +2130,147 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
             <div className="pt-3 border-t border-zinc-100 text-[11px] text-zinc-400 font-mono text-center">
               Includes all 18 chapters · Verbatim WhatsApp bubbles · Timestamp analytics
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Interactive Hot Take Deep Dive / Conspiracy Theory Modal */}
+      {selectedHotTake && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 no-print animate-in fade-in duration-200">
+          <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border-2 border-orange-300 space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Header Stamp & Close Button */}
+            <div className="flex items-start justify-between gap-4 border-b border-orange-200/80 pb-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-900 border border-orange-300 font-mono text-[10px] font-bold uppercase tracking-wider">
+                  <Flame className="w-3 h-3 text-orange-600" />
+                  <span>DECLASSIFIED CONSPIRACY DOSSIER 🕵️‍♂️</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-editorial text-zinc-900 font-semibold tracking-tight">
+                  The Deeper Dynamic Read
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedHotTake(null)}
+                className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-full hover:bg-orange-100/60 transition-colors cursor-pointer"
+                title="Close Dossier"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* The Original Quoted Hot Take */}
+            <div className="p-4 rounded-2xl bg-white border border-orange-200 shadow-2xs space-y-1.5">
+              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold block">
+                ORIGINAL EXHIBIT TAKE
+              </span>
+              <p className="font-editorial text-base sm:text-lg text-zinc-900 italic font-medium leading-snug">
+                “{selectedHotTake}”
+              </p>
+            </div>
+
+            {/* Modal Body: Loading State or Deeper Dive */}
+            {isGeneratingTheory ? (
+              <div className="py-10 space-y-4 text-center">
+                <div className="relative inline-flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full p-1 bg-white border-2 border-orange-300 shadow-md animate-pulse">
+                    <img
+                      src={indusAvatar}
+                      alt="Brandon analyzing"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                  <Sparkles className="w-5 h-5 text-orange-500 absolute -top-1 -right-1 animate-spin" />
+                </div>
+                <div className="space-y-1.5 max-w-sm mx-auto">
+                  <p className="text-sm font-semibold text-zinc-900">
+                    Connecting psychological dots...
+                  </p>
+                  <p className="text-xs text-zinc-500 font-mono">
+                    Brandon is analyzing unread receipts and calculating the exact ratio of plausible deniability...
+                  </p>
+                </div>
+                <div className="w-48 mx-auto h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-orange-500 rounded-full animate-pulse w-2/3" />
+                </div>
+              </div>
+            ) : theoryData ? (
+              <div className="space-y-5">
+                {/* Conspiracy Title */}
+                <div>
+                  <span className="text-[10px] font-mono text-orange-700 uppercase tracking-widest font-bold">
+                    THEORY CODENAME
+                  </span>
+                  <h4 className="text-xl sm:text-2xl font-editorial font-bold text-zinc-900 mt-0.5">
+                    {theoryData.conspiracyTitle}
+                  </h4>
+                </div>
+
+                {/* The Theory Exposition */}
+                <div className="space-y-3 text-xs sm:text-sm text-zinc-700 leading-relaxed font-sans bg-white/80 p-4 sm:p-5 rounded-2xl border border-zinc-200/80 shadow-2xs">
+                  {theoryData.theory.split('\n\n').map((paragraph, pIdx) => (
+                    <p key={pIdx}>{paragraph}</p>
+                  ))}
+                </div>
+
+                {/* Evidence Points */}
+                {theoryData.evidencePoints && theoryData.evidencePoints.length > 0 && (
+                  <div className="space-y-2.5">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold block">
+                      SUPPORTING RECEIPTS & BEHAVIORAL EXHIBITS
+                    </span>
+                    <div className="space-y-2">
+                      {theoryData.evidencePoints.map((point, ptIdx) => (
+                        <div
+                          key={ptIdx}
+                          className="p-3 rounded-xl bg-orange-50/60 border border-orange-200/70 text-xs text-zinc-800 flex items-start gap-2.5"
+                        >
+                          <span className="font-mono font-bold text-orange-600 shrink-0 text-[11px]">
+                            #{ptIdx + 1}
+                          </span>
+                          <span className="leading-relaxed">{point}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* The Uncomfortable Truth Callout */}
+                {theoryData.uncomfortableTruth && (
+                  <div className="p-4 rounded-2xl bg-zinc-900 text-white space-y-1 shadow-md">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                      <span>🔑 THE UNCOMFORTABLE TRUTH</span>
+                    </div>
+                    <p className="text-xs sm:text-sm italic font-editorial leading-relaxed text-zinc-100">
+                      “{theoryData.uncomfortableTruth}”
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-2.5 border-t border-orange-200/80">
+                  <button
+                    onClick={() => handleAskAboutHotTake(selectedHotTake)}
+                    className="flex-1 py-2.5 px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Ask Brandon About This</span>
+                  </button>
+
+                  <button
+                    onClick={handleCopyTheory}
+                    className="py-2.5 px-4 rounded-full bg-white hover:bg-orange-50 border border-orange-200 text-zinc-800 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {theoryCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-zinc-500" />}
+                    <span>{theoryCopied ? 'Copied Dossier!' : 'Copy Theory'}</span>
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Footer Notice */}
+            <div className="pt-2 text-[10px] font-mono text-zinc-400 text-center border-t border-orange-100">
+              Generated by Brandon's behavioral model · Grounded in uploaded message timestamps
             </div>
           </div>
         </div>

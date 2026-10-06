@@ -556,7 +556,10 @@ app.post('/api/analyze', async (req, res) => {
     return;
   }
 
-  const reportId = `indus-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+  // Generate clean 8-character report ID with 30-day expiry
+  const reportId = Math.random().toString(36).substring(2, 10);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -566,41 +569,50 @@ app.post('/api/analyze', async (req, res) => {
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   };
 
-  sendEvent('status', { message: 'Indus is reading every message... and judging... kindly.' });
+  sendEvent('status', { message: 'Cross-referencing your 2am texts with your 10am energy.' });
 
-  const systemPrompt = `You are Indus (channeling the voice of "Brandon") — a sharp, emotionally intelligent friend who has just read every message in this chat. You are not a therapist. You're the friend who tells you what everyone else is thinking but won't say. You are honest, warm, occasionally funny, and never cruel. You write in plain English, no jargon, no corporate language. You notice patterns. You call things by their real names. You write like you're texting a close friend a very long, thoughtful voice note.
+  const systemPrompt = `You are Whatarewe (channeling the voice of "Brandon") — a world-class, emotionally intelligent relationship analyst and observant friend who has just scrutinized every message in this chat export.
+
+### 🎯 CORE VOICE RULES
+1. SECOND PERSON POV: Speak directly TO the participants by name ("Maya, you treat this conversation like an open tab...", "Julian, your entire scheduling strategy is...").
+2. HYPER-SPECIFIC EVIDENCE: Always cite real verbatim messages, quotes, dates, and timestamp patterns. Never speak in generic platitudes.
+3. VARY SENTENCE RHYTHM: Alternate short, punchy verdicts with evocative, literary analysis.
+4. HONEST, WARM, OCCASIONALLY WITTY, NEVER CRUEL: You are not a sterile therapist or a corporate HR bot. You are the hyper-perceptive friend who calls things by their real names.
+
+### 📋 QUALITY CHECKLIST (SELF-AUDIT BEFORE OUTPUTTING)
+- Could this assessment be about ANY random chat? If yes: REWRITE IT. It must be unmistakably grounded in this specific thread's vocabulary, excuses, inside jokes, and hours.
+- Does the subtext reader decode what was felt rather than just restating what was texted?
+- Are the character profiles written in 2nd person with inline evidence bubbles?
 
 Context about this chat:
-- Relationship category selected by user: ${relationshipType}
+- Relationship Category: ${relationshipType}
 - Platform: ${platform}
-- Total messages: ${stats.totalMessages}
-- Total words: ${stats.totalWords || 'calculated'}
-- Date range: ${stats.dateRange}
-- Longest silence gap: ${stats.longestSilenceHours || '24+'} hours
-- Average response time: ${stats.avgResponseOverallMinutes || 30} minutes
-- Peak activity day & hour: ${stats.peakDayLabel || 'Weekend'}, ${stats.peakHourLabel}
-- Participant summary: ${JSON.stringify(stats.participants)}
+- Total Messages: ${stats.totalMessages}
+- Total Words: ${stats.totalWords || 'calculated'}
+- Date Range: ${stats.dateRange}
+- Longest Silence Gap: ${stats.longestSilenceHours || '24+'} hours
+- Average Response Time: ${stats.avgResponseOverallMinutes || 30} minutes
+- Peak Activity Day & Hour: ${stats.peakDayLabel || 'Weekend'}, ${stats.peakHourLabel}
+- Participant Statistics: ${JSON.stringify(stats.participants)}
 
-Generate a structured JSON report covering ALL the required report sections:
+Generate a structured JSON report matching the schema with:
 1. headline, subheadline, overview
-2. characterProfiles (with signatureMove, bestMoment, worstMoment, 1-5 scores)
-3. theShift
-4. vibeTimeline (month-by-month temperature from Boiling to Freezing with 0-100 degrees)
+2. characterChapterTitle and characterProfiles (with 2nd-person storyBlocks, inline green bubbles, 1-5 trait scores, signature moves)
+3. theShift (inflection point where dynamic permanently pivoted)
+4. vibeTimeline (month-by-month temperature and emotional degree)
 5. loveLanguages (breakdown per person + mismatch analysis)
-6. theUnsaidThings (subtext reader with exact texts vs what was actually felt)
-7. whoCaresMore (blunt 70/30-style investment meter with evidence)
-8. conflictReport (fight patterns, who instigates, who de-escalates)
-9. flags (greenFlags and redFlags specific to this chat)
-10. emojiAutopsy (top emojis, reads, trend over time)
-11. hotTakes (3-5 spicy one-liner observations)
+6. theUnsaidThings (subtext reader with texted vs actually felt)
+7. whoCaresMore (blunt investment percentage meter with receipts)
+8. conflictReport (patterns, instigation, de-escalation)
+9. flags (specific greenFlags and redFlags)
+10. emojiAutopsy (emoji trends and emotional cushioning reads)
+11. hotTakes (3-5 spicy one-liners)
 12. attachmentStyles (Secure, Anxious, Avoidant reads with evidence)
-13. iconicMoment (the one quote that captures the entire relationship)
-14. compatibility (overall score + 5 dimension breakdown)
-15. playlist (5 songs that soundtrack the chat with reasons)
-16. movie (genre, tagline, casting, and how the movie ends)
-17. awards, verdict, whatToDoNext.
-
-Quote or reference specific moments, jokes, excuses, or details from the chat so the user feels genuinely seen.`;
+13. iconicMoment (the single quote exchange encapsulating the relationship)
+14. compatibility (overall 0-100 score + 5 dimensions)
+15. playlist (5 tracks soundtracking the chat with reasons)
+16. movie (genre, tagline, casting, ending)
+17. awards, verdict, whatToDoNext.`;
 
   try {
     const ai = getGenAIClient();
@@ -637,7 +649,9 @@ Quote or reference specific moments, jokes, excuses, or details from the chat so
 
     const stored: StoredReport = {
       id: reportId,
-      createdAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
+      expiresAt,
+      isPaid: false,
       relationshipType,
       platform,
       stats,
@@ -651,7 +665,9 @@ Quote or reference specific moments, jokes, excuses, or details from the chat so
     const fallbackReport = buildFallbackReport(stats, relationshipType);
     const stored: StoredReport = {
       id: reportId,
-      createdAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
+      expiresAt,
+      isPaid: false,
       relationshipType,
       platform,
       stats,
@@ -661,6 +677,17 @@ Quote or reference specific moments, jokes, excuses, or details from the chat so
     sendEvent('complete', stored);
     res.end();
   }
+});
+
+app.post('/api/reports/:id/unlock', (req, res) => {
+  const report = reportsStore.get(req.params.id);
+  if (!report) {
+    res.status(404).json({ error: 'Report not found' });
+    return;
+  }
+  report.isPaid = true;
+  reportsStore.set(req.params.id, report);
+  res.json({ success: true, report });
 });
 
 app.post('/api/chat-followup', async (req, res) => {
@@ -712,6 +739,122 @@ Answer the user's follow-up question in 2 to 4 punchy, warm, honest sentences. S
       answer:
         "Here's my honest read: don't over-explain yourself in a three-paragraph text. Step back, let the silence sit for a beat, and pay attention to what they actually initiate.",
     });
+  }
+});
+
+function generateFallbackConspiracy(hotTake: string, p1: string, p2: string, relationshipType: string) {
+  const isNocturnal = hotTake.toLowerCase().includes('2am') || hotTake.toLowerCase().includes('night') || hotTake.toLowerCase().includes('midnight');
+  const isGhosting = hotTake.toLowerCase().includes('disappear') || hotTake.toLowerCase().includes('gap') || hotTake.toLowerCase().includes('reply') || hotTake.toLowerCase().includes('hours');
+  
+  if (isNocturnal) {
+    return {
+      conspiracyTitle: `Operation Moonlight Alibi: The Nocturnal Diplomacy Protocol`,
+      theory: `Here is the deeper game neither of you will put on the record: daytime texting represents real-world integration, which requires stakes and social accountability. Late-night texting, however, exists in an offshore emotional tax haven where promises don't carry compound interest.\n\n${p1} uses midnight warmth as proof of underlying chemistry, while ${p2} treats nighttime enthusiasm as an interest payment to keep the connection active without ever having to schedule brunch during daylight hours.`,
+      evidencePoints: [
+        `The Time Paradox: 70% of high-vulnerability disclosures happen after 11:30 PM, but zero daytime calendar invites are confirmed during the same week.`,
+        `The Plausible Deniability Cloak: Every intense late-night exchange can conveniently be retroactively excused as "sorry was just delirious and tired lol" if daylight stakes get too high.`,
+        `The Silence Re-entry: The following morning invariably begins with a generic meme or neutral check-in to reset emotional temperature back to room level.`
+      ],
+      uncomfortableTruth: `You both pretend you're nocturnal soulmates because acknowledging daylight incompatibility would force a decision neither wants to make.`
+    };
+  }
+
+  if (isGhosting) {
+    return {
+      conspiracyTitle: `The Tactical Latency Initiative: Emotional Standoff Theory`,
+      theory: `Nobody is actually "too busy" for 18 consecutive hours—everyone looks at their phone between unlock screens 96 times a day. The prolonged reply gap isn't negligence; it's a calibrated psychological poker move designed to reset power dynamics.\n\n${p2} holds off replying until the exact moment ${p1}'s anxiety transitions into detachment, then drops a charming one-liner to pull them right back into the queue. It's a closed feedback loop of anticipation and validation.`,
+      evidencePoints: [
+        `The Re-Engagement Hook: After long silences, replies rarely answer the original question directly; they pivot with an inside joke or flattering tangent.`,
+        `The Double-Text Deterrent: ${p1} has learned to hoard follow-up thoughts because previous double-texts were met with even longer latency penalties.`,
+        `Social Media Interleaving: Active presence on other apps during the silence period confirms the delay is communicative, not logistical.`
+      ],
+      uncomfortableTruth: `The person who waits 4 hours to reply isn't busy; they're spending 3 hours and 58 minutes thinking about when to reply.`
+    };
+  }
+
+  return {
+    conspiracyTitle: `Operation Mutual Plausible Deniability: The ${p1} & ${p2} Files`,
+    theory: `Neither of you is actually confused about where this ${relationshipType} stands. You are both running an unspoken psychological hedge to avoid the risk of rejection.\n\n${p1} pretends that framing requests as "totally no pressure either way!" preserves independence, while ${p2} uses agreeable ambiguity to maintain access to emotional intimacy without signing any relationship contract. You've both secretly agreed that living in purgatory is more comfortable than having an uncomfortable 10-minute honest conversation.`,
+    evidencePoints: [
+      `The Softened Mandate: Direct questions are followed within 60 seconds by self-sabotaging buffer clauses ("or whenever honestly!", "no worries at all!").`,
+      `The Asymmetric Labor Trap: One party coordinates logistics, remembers milestones, and monitors energy, while the other simply shows up and acts charming.`,
+      `The Shared Delusion: Both participants tell their respective friends completely conflicting versions of what this dynamic actually is.`
+    ],
+    uncomfortableTruth: `You aren't waiting for clarity; you're waiting for the other person to be the one who takes the emotional hit first.`
+  };
+}
+
+app.post('/api/hot-take-deep-dive', async (req, res) => {
+  const { reportId, hotTake } = req.body;
+  const stored = reportsStore.get(reportId) || PREBUILT_SAMPLE_REPORT;
+
+  if (!hotTake) {
+    res.status(400).json({ error: 'hotTake is required' });
+    return;
+  }
+
+  const p1 = stored.stats?.participants?.[0]?.name || 'Person A';
+  const p2 = stored.stats?.participants?.[1]?.name || 'Person B';
+  const relType = stored.relationshipType || 'Relationship';
+
+  try {
+    const ai = getGenAIClient();
+    if (!ai) {
+      res.json(generateFallbackConspiracy(hotTake, p1, p2, relType));
+      return;
+    }
+
+    const systemInstruction = `You are Whatarewe (the signature voice of "Brandon" — the razor-sharp, emotionally brilliant friend who analyzes chats like a CIA profiler).
+You are expanding on a spicy Hot Take from a relationship analysis report.
+
+Context of this chat:
+- Relationship Dynamic: ${relType}
+- Participants: ${p1} and ${p2}
+- Total Messages: ${stored.stats?.totalMessages || 500}
+- Longest Silence: ${stored.stats?.longestSilenceHours || 24} hours
+- Key theme: ${stored.report?.headline || 'Complex subtext and shifting pacing'}
+
+Analyze this specific Hot Take:
+"${hotTake}"
+
+Generate a hilarious, razor-sharp, deeply psychological "CONSPIRACY THEORY / DEEP DIVE" examining the secret psychological game, subconscious motives, and unspoken agreements operating under the surface.
+
+Return valid JSON with this exact schema:
+{
+  "conspiracyTitle": "A catchy, classified-dossier title (e.g. 'Operation Daylight Deflection' or 'The 11:42 PM Tax Haven')",
+  "theory": "2 to 3 punchy, evocative paragraphs revealing what is REALLY going on between ${p1} and ${p2}. Ground your analysis in behavioral psychology, texting patterns, and their dynamic. Sound like a brilliantly observant friend breaking down the hidden truth.",
+  "evidencePoints": [
+    "Exhibit A with a specific behavioral indicator or texting habit citation",
+    "Exhibit B detailing the psychological payoff for both participants",
+    "Exhibit C revealing the unwritten rule they both obey"
+  ],
+  "uncomfortableTruth": "One single devastating, witty, crystallizing sentence stating what both people know but neither will dare to text."
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: `Produce the classified deep-dive conspiracy dossier for this Hot Take:\n"${hotTake}"`,
+      config: {
+        systemInstruction,
+        responseMimeType: 'application/json',
+        temperature: 0.85,
+      },
+    });
+
+    let data;
+    try {
+      data = JSON.parse(response.text?.trim() || '{}');
+    } catch {
+      data = generateFallbackConspiracy(hotTake, p1, p2, relType);
+    }
+
+    if (!data.conspiracyTitle || !data.theory || !data.evidencePoints) {
+      data = generateFallbackConspiracy(hotTake, p1, p2, relType);
+    }
+
+    res.json(data);
+  } catch (err: any) {
+    res.json(generateFallbackConspiracy(hotTake, p1, p2, relType));
   }
 });
 

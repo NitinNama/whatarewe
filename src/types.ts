@@ -244,6 +244,8 @@ export interface IndusReportContent {
 export interface StoredReport {
   id: string;
   createdAt: string;
+  expiresAt?: string;
+  isPaid?: boolean;
   relationshipType: string;
   platform: 'whatsapp' | 'imessage';
   stats: Omit<ParsedChatStats, 'truncatedText'>;
