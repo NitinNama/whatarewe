@@ -170,12 +170,12 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       }
 
       const pNames = (stats.participants || []).map((p) => p.name.toLowerCase().replace(/[^a-z0-9]/g, '-')).join('-');
-      const filename = `indus-relationship-report-${pNames || 'analysis'}.pdf`;
+      const filename = `whatarewe-relationship-report-${pNames || 'analysis'}.pdf`;
 
       await generatePdfFromElement({
         element: el,
         filename,
-        reportTitle: `Indus · ${relationshipType} (${(stats.participants || []).map((p) => p.name).join(' & ')})`,
+        reportTitle: `Whatarewe · ${relationshipType} (${(stats.participants || []).map((p) => p.name).join(' & ')})`,
         onProgress: (percent, stage) => {
           setPdfProgress({ percent, stage });
         },
@@ -1917,7 +1917,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           </div>
 
           {/* Always-mounted printable dossier for PDF generation & native print */}
-          <div className="fixed -left-[9999px] top-0 w-[820px] pointer-events-none opacity-100 print:static print:left-auto print:w-full print:block">
+          <div className="offscreen-print-container">
             {renderFullDossier(true)}
           </div>
         </>
