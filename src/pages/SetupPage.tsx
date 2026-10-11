@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Lock, ArrowRight, ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { Upload, Lock, ArrowRight, ArrowLeft, Check, AlertCircle, Phone, UserCheck, Sparkles, Edit3 } from 'lucide-react';
 import indusAvatar from '../assets/images/avatar_indus_friend_1791121741937.jpg';
 import { RelationshipType, StoredReport } from '../types';
 import { parseChatExport } from '../utils/chatParser';
@@ -8,6 +8,13 @@ import { SAMPLE_CHAT_EXPORTS } from '../data/sampleChats';
 interface SetupPageProps {
   initialRelationshipType: RelationshipType;
   onReportGenerated: (report: StoredReport) => void;
+}
+
+export interface DetectedContact {
+  originalName: string;
+  cleanName: string;
+  isPhoneNumber: boolean;
+  messageCount: number;
 }
 
 const RELATIONSHIP_OPTIONS: RelationshipType[] = [
@@ -26,18 +33,61 @@ const RELATIONSHIP_OPTIONS: RelationshipType[] = [
 ];
 
 const LOADING_MESSAGES = [
-  'Cross-referencing your 2am texts with your 10am energy.',
-  'Calculating who cared more down to three decimal places.',
-  'Measuring the awkwardness of that 14-hour reply gap.',
+  'Reading chat transcripts and timestamps...',
+  'Finding the week it all changed...',
+  'Cross-referencing your 2am texts with your 10am energy...',
+  'Drafting roasts, awards, and unfiltered truths...',
+  'Calculating who cared more down to three decimal places...',
+  'Measuring the awkwardness of that 14-hour reply gap...',
   'Auditing your emoji usage for emotional deflection...',
-  'Flagging all messages sent from an Uber after midnight.',
-  'Checking if "haha yeah totally" meant "I am devastated".',
-  'Drafting unvarnished character assessments for the personnel file...',
+  'Checking if "haha yeah totally" meant "I am devastated"...',
   'Composing the closing verdict and life advice...',
 ];
 
+function extractParticipants(text: string, platform: 'whatsapp' | 'imessage'): DetectedContact[] {
+  const counts: Record<string, number> = {};
+  const lines = text.split(/\r?\n/);
+
+  const waRegex1 = /^\[?\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}[,\s]+\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|am|pm)?\]?\s*[-–—]?\s*([^:]+?):\s*(.*)$/;
+  const waRegex2 = /^\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4},\s*\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?\s*-\s*([^:]+?):\s*(.*)$/i;
+  const imRegex = /^([^:\n]{1,35}):\s+(.+)$/;
+
+  for (const line of lines) {
+    let sender: string | null = null;
+    const m1 = line.match(waRegex1);
+    if (m1 && m1[1]) {
+      sender = m1[1].trim();
+    } else {
+      const m2 = line.match(waRegex2);
+      if (m2 && m2[1]) {
+        sender = m2[1].trim();
+      } else if (platform === 'imessage') {
+        const m3 = line.match(imRegex);
+        if (m3 && m3[1] && !m3[1].includes('http') && !m3[1].startsWith('[')) {
+          sender = m3[1].trim();
+        }
+      }
+    }
+
+    if (sender && !sender.toLowerCase().includes('messages and calls') && !sender.toLowerCase().includes('omitted')) {
+      counts[sender] = (counts[sender] || 0) + 1;
+    }
+  }
+
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return entries.map(([name, count]) => {
+    const isPhone = /^(\+|00)?[0-9\s\-()]{7,}$/.test(name) || /\+\d{1,4}\s*\d{4,}/.test(name);
+    return {
+      originalName: name,
+      cleanName: isPhone ? name.replace(/[^\d+]/g, ' ').trim() : name,
+      isPhoneNumber: isPhone,
+      messageCount: count,
+    };
+  });
+}
+
 export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, onReportGenerated }) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [platform, setPlatform] = useState<'whatsapp' | 'imessage'>('whatsapp');
   const [relationshipType, setRelationshipType] = useState<RelationshipType>(initialRelationshipType);
   const [rawText, setRawText] = useState<string>('');
@@ -49,13 +99,16 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
   const [streamChars, setStreamChars] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Step 4: Contact Cleaner State
+  const [detectedContacts, setDetectedContacts] = useState<DetectedContact[]>([]);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!isAnalyzing) return;
     const interval = setInterval(() => {
       setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 3000);
+    }, 2800);
     return () => clearInterval(interval);
   }, [isAnalyzing]);
 
@@ -68,6 +121,9 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
     const text = await file.text();
     setFileName(file.name);
     setRawText(text);
+
+    const contacts = extractParticipants(text, platform);
+    setDetectedContacts(contacts);
   };
 
   const handleLoadSample = (key: 'situationship' | 'ex' | 'groupchat') => {
@@ -77,6 +133,26 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
     setFileName(`${key}_export.txt`);
     setRawText(sample.rawText);
     setErrorMsg(null);
+
+    const contacts = extractParticipants(sample.rawText, sample.platform);
+    setDetectedContacts(contacts);
+  };
+
+  const handleGoToContactCleaner = () => {
+    if (!rawText.trim()) {
+      setErrorMsg('Please upload a .txt chat file or select a sample chat first.');
+      return;
+    }
+    setErrorMsg(null);
+    const contacts = extractParticipants(rawText, platform);
+    setDetectedContacts(contacts);
+    setStep(4);
+  };
+
+  const handleUpdateContactName = (index: number, newName: string) => {
+    setDetectedContacts((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, cleanName: newName } : c))
+    );
   };
 
   const handleAnalyzeChat = async () => {
@@ -90,8 +166,17 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
     setStreamChars(0);
     setStreamPreview('');
 
+    // Apply any Contact Cleaner renames to the text
+    let processedText = rawText;
+    detectedContacts.forEach((contact) => {
+      const clean = contact.cleanName.trim();
+      if (clean && clean !== contact.originalName) {
+        processedText = processedText.split(contact.originalName).join(clean);
+      }
+    });
+
     try {
-      const parsed = parseChatExport(rawText, platform);
+      const parsed = parseChatExport(processedText, platform);
       const { truncatedText, ...cleanStats } = parsed;
 
       const response = await fetch('/api/analyze', {
@@ -151,45 +236,57 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
     }
   };
 
+  // STEP 5: Live Real-time Generation Screen
   if (isAnalyzing) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <div className="relative inline-flex items-center justify-center mb-8">
-          <div className="w-24 h-24 rounded-full p-1 bg-white border border-zinc-200 shadow-sm animate-pulse">
+          {/* Multi-layered pulsating ripples */}
+          <div className="absolute inset-0 rounded-full bg-zinc-900/10 pointer-events-none animate-avatar-ripple-1" />
+          <div className="absolute inset-0 rounded-full bg-zinc-900/15 pointer-events-none animate-avatar-ripple-2" />
+
+          {/* Primary avatar container with custom glowing pulse */}
+          <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1.5 bg-white border-2 border-zinc-900/40 shadow-xl animate-avatar-pulse">
             <img
               src={indusAvatar}
-              alt="Indus reading your chat"
+              alt="Whatarewe reading your chat"
               referrerPolicy="no-referrer"
               className="w-full h-full rounded-full object-cover"
             />
           </div>
+          <span className="absolute -bottom-1 z-20 bg-zinc-900 text-white text-[11px] font-mono px-2.5 py-0.5 rounded-full border border-white shadow-sm flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            Whatarewe
+          </span>
         </div>
 
-        <p className="text-xs font-mono text-zinc-500 tabular-nums">
-          STREAMING LIVE REPORT · {streamChars > 0 ? `${streamChars} CHARS DRAFTED` : 'PARSING TIMESTAMPS'}
+        <p className="text-xs font-mono text-zinc-500 tabular-nums uppercase tracking-wider">
+          LIVE DOSSIER STREAM · {streamChars > 0 ? `${streamChars.toLocaleString()} CHARS WRITTEN` : 'PARSING TRANSCRIPT'}
         </p>
 
-        <h1 className="mt-3 text-3xl sm:text-4xl font-editorial text-zinc-900">
+        <h1 className="mt-3 text-3xl sm:text-4xl font-editorial text-zinc-900 leading-snug">
           {LOADING_MESSAGES[loadingMsgIdx]}
         </h1>
 
         <p className="mt-3 text-sm text-zinc-500 max-w-md mx-auto">
-          Reading your {relationshipType} export and scoring emotional availability, reply gaps, and unspoken subtext.
+          Scrutinizing every message in your {relationshipType} transcript for reply gaps, emotional investment, and unspoken subtext.
         </p>
 
-        <div className="mt-8 max-w-md mx-auto h-1.5 bg-zinc-200 rounded-full overflow-hidden">
+        <div className="mt-8 max-w-md mx-auto h-2 bg-zinc-200 rounded-full overflow-hidden p-0.5">
           <div
-            className="h-full bg-zinc-900 transition-transform duration-200 origin-left"
+            className="h-full bg-zinc-900 rounded-full transition-all duration-300 origin-left"
             style={{
-              transform: `scaleX(${Math.min(0.95, Math.max(0.15, streamChars / 3200))})`,
+              width: `${Math.min(95, Math.max(18, Math.round((streamChars / 3600) * 100)))}%`,
             }}
           />
         </div>
 
         {streamPreview && (
-          <div className="mt-8 max-w-lg mx-auto bg-white border border-zinc-200/80 rounded-xl p-4 text-left">
-            <p className="text-[11px] font-mono text-zinc-400 mb-1">LIVE DRAFT STREAM</p>
-            <p className="text-xs font-mono text-zinc-600 truncate">{streamPreview}</p>
+          <div className="mt-8 max-w-lg mx-auto bg-white border border-zinc-200/90 rounded-2xl p-4 text-left shadow-xs">
+            <p className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1">
+              LIVE VERDICT PREVIEW
+            </p>
+            <p className="text-xs font-mono text-zinc-700 truncate">{streamPreview}</p>
           </div>
         )}
       </div>
@@ -198,13 +295,14 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
+      {/* Wizard Step Indicator */}
       <div className="mb-10">
         <div className="flex items-center justify-between text-xs font-medium text-zinc-500 mb-3">
           <button
             onClick={() => setStep(1)}
             className={`cursor-pointer transition-colors ${step >= 1 ? 'text-zinc-900 font-semibold' : ''}`}
           >
-            01. Platform & Vibe
+            01. Platform
           </button>
           <span aria-hidden="true">·</span>
           <button
@@ -216,29 +314,39 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
           <span aria-hidden="true">·</span>
           <button
             onClick={() => setStep(3)}
-            className={`cursor-pointer transition-colors ${step === 3 ? 'text-zinc-900 font-semibold' : ''}`}
+            className={`cursor-pointer transition-colors ${step >= 3 ? 'text-zinc-900 font-semibold' : ''}`}
           >
-            03. Upload & Analyze
+            03. Upload Chat
+          </button>
+          <span aria-hidden="true">·</span>
+          <button
+            onClick={() => {
+              if (rawText) handleGoToContactCleaner();
+            }}
+            className={`cursor-pointer transition-colors ${step === 4 ? 'text-zinc-900 font-semibold' : ''}`}
+          >
+            04. Contact Cleaner
           </button>
         </div>
         <div className="w-full h-1 bg-zinc-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-zinc-900 transition-transform duration-200 origin-left"
-            style={{ transform: `scaleX(${step / 3})` }}
+            style={{ transform: `scaleX(${step / 4})` }}
           />
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-zinc-200/90 p-7 sm:p-10 shadow-2xs">
+        {/* STEP 1: Platform & Dynamic */}
         {step === 1 && (
           <div className="space-y-8">
             <div>
-              <p className="text-xs font-medium text-zinc-500">Step 1 of 3</p>
+              <p className="text-xs font-medium text-zinc-500">Step 1 of 4</p>
               <h1 className="mt-1 text-3xl font-editorial text-zinc-900">
                 Choose your platform & chat dynamic
               </h1>
               <p className="mt-2 text-sm text-zinc-600">
-                Tell Indus where the messages come from and what kind of dynamic he’s walking into.
+                Tell Brandon where the messages come from and what dynamic he’s analyzing.
               </p>
             </div>
 
@@ -250,66 +358,70 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 <button
                   type="button"
                   onClick={() => setPlatform('whatsapp')}
-                  className={`p-5 rounded-xl border text-left transition-colors cursor-pointer flex items-start justify-between ${
+                  className={`p-5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                     platform === 'whatsapp'
-                      ? 'border-zinc-900 bg-zinc-900/3'
-                      : 'border-zinc-200 hover:border-zinc-300'
+                      ? 'border-zinc-900 bg-zinc-900 text-white shadow-xs'
+                      : 'border-zinc-200 hover:border-zinc-300 bg-white text-zinc-900'
                   }`}
                 >
-                  <div>
-                    <p className="text-base font-semibold text-zinc-900">WhatsApp</p>
-                    <p className="text-xs text-zinc-500 mt-1">Standard .txt export (Mobile or Desktop)</p>
+                  <div className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-full bg-[#25D366]/20 flex items-center justify-center shrink-0">
+                      <svg className="w-5 h-5 fill-[#25D366]" viewBox="0 0 24 24">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">WhatsApp</p>
+                      <p className={`text-xs ${platform === 'whatsapp' ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                        .txt export (Chat settings → Export Chat)
+                      </p>
+                    </div>
                   </div>
-                  <span
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      platform === 'whatsapp' ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300'
-                    }`}
-                  >
-                    {platform === 'whatsapp' && <Check className="w-3 h-3" />}
-                  </span>
+                  {platform === 'whatsapp' && <Check className="w-5 h-5 text-white" />}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPlatform('imessage')}
-                  className={`p-5 rounded-xl border text-left transition-colors cursor-pointer flex items-start justify-between ${
+                  className={`p-5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                     platform === 'imessage'
-                      ? 'border-zinc-900 bg-zinc-900/3'
-                      : 'border-zinc-200 hover:border-zinc-300'
+                      ? 'border-zinc-900 bg-zinc-900 text-white shadow-xs'
+                      : 'border-zinc-200 hover:border-zinc-300 bg-white text-zinc-900'
                   }`}
                 >
-                  <div>
-                    <p className="text-base font-semibold text-zinc-900">iMessage</p>
-                    <p className="text-xs text-zinc-500 mt-1">Mac/iOS conversation export (.txt)</p>
+                  <div className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-full bg-[#007AFF]/20 flex items-center justify-center shrink-0">
+                      <span className="text-base font-bold text-[#007AFF]">💬</span>
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">iMessage</p>
+                      <p className={`text-xs ${platform === 'imessage' ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                        Exported transcript or text file
+                      </p>
+                    </div>
                   </div>
-                  <span
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      platform === 'imessage' ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300'
-                    }`}
-                  >
-                    {platform === 'imessage' && <Check className="w-3 h-3" />}
-                  </span>
+                  {platform === 'imessage' && <Check className="w-5 h-5 text-white" />}
                 </button>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-3">
-                What is this chat?
+                Relationship Dynamic
               </label>
-              <div className="flex flex-wrap gap-2">
-                {RELATIONSHIP_OPTIONS.map((opt) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {RELATIONSHIP_OPTIONS.map((type) => (
                   <button
-                    key={opt}
+                    key={type}
                     type="button"
-                    onClick={() => setRelationshipType(opt)}
-                    className={`px-3.5 py-2 rounded-full text-xs font-medium border transition-colors cursor-pointer whitespace-nowrap ${
-                      relationshipType === opt
-                        ? 'bg-zinc-900 text-white border-zinc-900'
-                        : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                    onClick={() => setRelationshipType(type)}
+                    className={`px-3.5 py-2.5 rounded-xl text-xs font-medium border text-left transition-all cursor-pointer ${
+                      relationshipType === type
+                        ? 'border-zinc-900 bg-zinc-900 text-white font-semibold'
+                        : 'border-zinc-200 hover:border-zinc-300 text-zinc-800 bg-[#FAF9F6]'
                     }`}
                   >
-                    {opt}
+                    {type}
                   </button>
                 ))}
               </div>
@@ -321,70 +433,50 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 onClick={() => setStep(2)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-colors cursor-pointer"
               >
-                <span>Next: Export Guide</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continue to Export Guide →</span>
               </button>
             </div>
           </div>
         )}
 
+        {/* STEP 2: How to Export Guide */}
         {step === 2 && (
           <div className="space-y-8">
             <div>
-              <p className="text-xs font-medium text-zinc-500">Step 2 of 3</p>
+              <p className="text-xs font-medium text-zinc-500">Step 2 of 4</p>
               <h1 className="mt-1 text-3xl font-editorial text-zinc-900">
-                How to export your {platform === 'whatsapp' ? 'WhatsApp' : 'iMessage'} chat in 20 seconds
+                How to export your chat without media
               </h1>
               <p className="mt-2 text-sm text-zinc-600">
-                Follow these 3 visual steps on your phone or laptop—always choose “Without Media” so the export is instant.
+                Always select <span className="font-semibold text-zinc-900">“Without Media”</span> so your export is instantaneous and contains only text timestamps.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-5 rounded-xl bg-[#FAF9F6] border border-zinc-200/80 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-mono text-zinc-500">STEP 01</p>
-                  <p className="text-sm font-semibold text-zinc-900 mt-1">
-                    {platform === 'whatsapp' ? 'Tap Contact or Group Name' : 'Open Messages on Mac or iOS'}
-                  </p>
+                  <p className="text-sm font-semibold text-zinc-900 mt-1">Open Chat Info</p>
                   <p className="text-xs text-zinc-600 mt-1">
-                    {platform === 'whatsapp'
-                      ? 'Open the WhatsApp thread and tap the person or group header at the very top of your screen.'
-                      : 'Open the iMessage thread you want Indus to analyze and scroll up so recent months load.'}
+                    Tap the contact or group name at the top of the chat in WhatsApp.
                   </p>
                 </div>
-                <div className="mt-5 bg-white rounded-lg border border-zinc-200 p-3 shadow-2xs">
-                  <div className="flex items-center gap-2.5 pb-2 border-b border-zinc-100">
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center">
-                      J
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[11px] font-semibold text-zinc-900">Julian 🌀</p>
-                      <p className="text-[9px] text-emerald-600">Tap header for Info →</p>
-                    </div>
-                  </div>
-                  <div className="pt-2 space-y-1.5">
-                    <div className="h-2 w-2/3 bg-zinc-100 rounded" />
-                    <div className="h-2 w-1/2 bg-emerald-50 rounded ml-auto" />
-                  </div>
+                <div className="mt-5 bg-white rounded-lg border border-zinc-200 p-3 space-y-1 text-center shadow-2xs">
+                  <div className="w-7 h-7 rounded-full bg-zinc-200 mx-auto" />
+                  <p className="text-xs font-semibold text-zinc-800">Chat Info</p>
                 </div>
               </div>
 
               <div className="p-5 rounded-xl bg-[#FAF9F6] border border-zinc-200/80 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-mono text-zinc-500">STEP 02</p>
-                  <p className="text-sm font-semibold text-zinc-900 mt-1">Select “Export Chat”</p>
+                  <p className="text-sm font-semibold text-zinc-900 mt-1">Tap “Export Chat”</p>
                   <p className="text-xs text-zinc-600 mt-1">
-                    Scroll to the bottom of the Contact Info screen and tap Export Chat.
+                    Scroll to the bottom of the contact page and select Export Chat.
                   </p>
                 </div>
-                <div className="mt-5 bg-white rounded-lg border border-zinc-200 p-3 space-y-1.5 shadow-2xs">
-                  <div className="px-2 py-1 text-[10px] text-zinc-400 border-b border-zinc-100">Starred Messages</div>
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 rounded flex items-center justify-between">
-                    <span>Export Chat</span>
-                    <span>↗</span>
-                  </div>
-                  <div className="px-2 py-1 text-[10px] text-rose-400">Clear Chat</div>
+                <div className="mt-5 bg-white rounded-lg border border-zinc-200 p-3 space-y-1 text-center shadow-2xs">
+                  <p className="text-xs font-medium text-zinc-700">Export Chat ↗</p>
                 </div>
               </div>
 
@@ -393,11 +485,10 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                   <p className="text-xs font-mono text-zinc-500">STEP 03</p>
                   <p className="text-sm font-semibold text-zinc-900 mt-1">Choose “Without Media”</p>
                   <p className="text-xs text-zinc-600 mt-1">
-                    Select Without Media and save the `.txt` file to Files or AirDrop it to your computer.
+                    Save the `.txt` export to your Files or send it directly to your laptop.
                   </p>
                 </div>
                 <div className="mt-5 bg-white rounded-lg border border-zinc-200 p-3 space-y-1.5 text-center shadow-2xs">
-                  <p className="text-[10px] text-zinc-400">Include media?</p>
                   <div className="py-1 text-[10px] text-zinc-400 border border-zinc-100 rounded">Attach Media</div>
                   <div className="py-1.5 text-[11px] font-semibold text-white bg-zinc-900 rounded">Without Media ✓</div>
                 </div>
@@ -418,21 +509,22 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 onClick={() => setStep(3)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-colors cursor-pointer"
               >
-                <span>I Have My Chat File →</span>
+                <span>Upload Chat File →</span>
               </button>
             </div>
           </div>
         )}
 
+        {/* STEP 3: Upload Chat File / Sample Chats */}
         {step === 3 && (
           <div className="space-y-7">
             <div>
-              <p className="text-xs font-medium text-zinc-500">Step 3 of 3 · {relationshipType}</p>
+              <p className="text-xs font-medium text-zinc-500">Step 3 of 4 · {relationshipType}</p>
               <h1 className="mt-1 text-3xl font-editorial text-zinc-900">
                 Upload your chat export
               </h1>
               <p className="mt-2 text-sm text-zinc-600">
-                Drag and drop your `.txt` export file below, paste a transcript, or test immediately with a sample chat.
+                Drag and drop your `.txt` export file, or load one of our realistic sample chats immediately.
               </p>
             </div>
 
@@ -474,7 +566,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 <div>
                   <p className="text-sm font-semibold text-zinc-900">{fileName} loaded</p>
                   <p className="text-xs text-zinc-500 mt-1 font-mono tabular-nums">
-                    {rawText.split(/\r?\n/).filter(Boolean).length} lines ready for Indus · Click to replace
+                    {rawText.split(/\r?\n/).filter(Boolean).length} lines detected · Click to replace
                   </p>
                 </div>
               ) : (
@@ -491,7 +583,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
             <div className="bg-[#FAF9F6] rounded-xl p-4 border border-zinc-200/80">
               <p className="text-xs font-medium text-zinc-600 mb-2.5">
-                Don’t have a `.txt` export handy right now? Load a realistic chat transcript to test live AI analysis:
+                Don’t have a chat export handy right now? Load a realistic transcript to test Brandon immediately:
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -520,17 +612,19 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
             <div>
               <label className="block text-xs font-medium text-zinc-500 mb-1.5">
-                Or paste / inspect chat text directly:
+                Or inspect / paste raw transcript text directly:
               </label>
               <textarea
                 value={rawText}
                 onChange={(e) => {
                   setRawText(e.target.value);
                   if (!fileName) setFileName('pasted_chat.txt');
+                  const contacts = extractParticipants(e.target.value, platform);
+                  setDetectedContacts(contacts);
                 }}
-                rows={4}
+                rows={3}
                 placeholder="[03/09/26, 12:01:15 AM] Maya: Julian I feel like we only ever hang out after 11pm lately..."
-                className="w-full rounded-xl border border-zinc-200 bg-[#FAF9F6] p-3.5 text-xs font-mono text-zinc-800 focus:outline-none focus:border-zinc-900"
+                className="w-full rounded-xl border border-zinc-200 bg-[#FAF9F6] p-3 text-xs font-mono text-zinc-800 focus:outline-none focus:border-zinc-900"
               />
             </div>
 
@@ -553,16 +647,120 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
               <button
                 type="button"
-                onClick={handleAnalyzeChat}
+                onClick={handleGoToContactCleaner}
                 className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap shadow-sm"
               >
-                <span>Analyze my chat →</span>
+                <span>Continue to Contact Cleaner →</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: Contact & Phone Cleaner */}
+        {step === 4 && (
+          <div className="space-y-7">
+            <div>
+              <p className="text-xs font-medium text-zinc-500">Step 4 of 4 · Contact Cleaner</p>
+              <h1 className="mt-1 text-3xl font-editorial text-zinc-900">
+                Confirm & clean participant names
+              </h1>
+              <p className="mt-2 text-sm text-zinc-600">
+                Brandon writes much sharper commentary when he knows real names or nicknames instead of raw phone numbers (e.g. <span className="font-mono text-xs text-zinc-800">+91 75310 01050</span>).
+              </p>
+            </div>
+
+            {detectedContacts.length > 0 ? (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-zinc-700 uppercase tracking-wider font-mono">
+                  Detected Chat Participants ({detectedContacts.length})
+                </p>
+
+                <div className="space-y-3">
+                  {detectedContacts.map((contact, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-xl border border-zinc-200 bg-[#FAF9F6] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm text-zinc-900">
+                            {contact.originalName}
+                          </span>
+                          {contact.isPhoneNumber ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-mono font-bold">
+                              <Phone className="w-2.5 h-2.5" />
+                              <span>Phone Number Detected</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-mono font-medium">
+                              <UserCheck className="w-2.5 h-2.5" />
+                              <span>Identified</span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-500 font-mono">
+                          {contact.messageCount.toLocaleString()} messages in export
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-500 shrink-0 font-medium">
+                          Use name:
+                        </label>
+                        <input
+                          type="text"
+                          value={contact.cleanName}
+                          onChange={(e) => handleUpdateContactName(idx, e.target.value)}
+                          placeholder="e.g. Maya or Julian"
+                          className="px-3 py-2 rounded-lg border border-zinc-300 bg-white text-xs font-medium text-zinc-900 focus:outline-none focus:border-zinc-900 w-44 shadow-2xs"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
+                <p className="text-sm font-semibold text-zinc-800">
+                  Participants will be parsed directly from the transcript.
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Ready to proceed with live AI analysis.
+                </p>
+              </div>
+            )}
+
+            {errorMsg && (
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="pt-4 flex items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleAnalyzeChat}
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-colors cursor-pointer shadow-md"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>Start Whatarewe’s Autopsy →</span>
               </button>
             </div>
           </div>
         )}
       </div>
 
+      {/* Privacy Guarantee Box */}
       <div className="mt-8 bg-white rounded-2xl border border-zinc-200/80 p-6">
         <div className="flex items-start gap-3.5">
           <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center shrink-0 mt-0.5">
@@ -570,10 +768,10 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
           </div>
           <div>
             <h2 className="text-base font-semibold text-zinc-900 font-sans">
-              What happens to my data? (We don’t store your raw chat)
+              What happens to my data? (Zero raw transcripts stored)
             </h2>
             <p className="mt-1.5 text-xs text-zinc-600 leading-relaxed">
-              Your `.txt` file is parsed for message counts and timestamps right in your browser, truncated to the most recent 50,000 tokens, and sent over encrypted HTTPS to generate Indus’s report. The moment your report finishes streaming, the raw chat transcript is permanently discarded from memory. Only the generated report summary and its shareable ID are kept so you can send the link to your friends.
+              Your `.txt` export is parsed in memory on your browser, and only the summarized stats and conversational sample are transmitted over encrypted HTTPS to generate Whatarewe’s autopsy. The moment the report is created, all raw chat transcripts are discarded. Only the generated analytical report is preserved under your private link.
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     <footer className="border-t border-zinc-200/80 bg-[#FAF9F6] py-12 mt-20 no-print">
       <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <p className="font-editorial text-lg font-semibold text-zinc-900">Indus</p>
+          <p className="font-editorial text-lg font-semibold text-zinc-900">Whatarewe</p>
           <p className="text-xs text-zinc-500 mt-1">
             Honest relationship & group chat reads. Zero raw transcripts stored.
           </p>

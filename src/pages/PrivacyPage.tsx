@@ -12,10 +12,10 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
       <div>
         <p className="text-xs font-medium text-zinc-500">Privacy & Data Handling</p>
         <h1 className="mt-2 text-4xl font-editorial text-zinc-900 tracking-tight">
-          We read your chat so Indus can roast it—then we delete the transcript immediately.
+          We read your chat so Whatarewe can roast it—then we delete the transcript immediately.
         </h1>
         <p className="mt-4 text-sm text-zinc-600 leading-relaxed">
-          Last updated: October 2026. Your personal conversations are deeply private. Here is the exact, plain-English breakdown of what happens the moment you drop a `.txt` file into <span className="font-semibold text-zinc-900">Indus</span>.
+          Last updated: October 2026. Your personal conversations are deeply private. Here is the exact, plain-English breakdown of what happens the moment you drop a `.txt` file into <span className="font-semibold text-zinc-900">Whatarewe</span>.
         </p>
       </div>
 
@@ -35,7 +35,7 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
           <div>
             <h2 className="text-lg font-editorial text-zinc-900">02. Ephemeral In-Memory AI Processing</h2>
             <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
-              To generate Indus’s qualitative commentary, the truncated text is streamed over encrypted HTTPS to our server-side LLM endpoint and immediately garbage-collected once the structured JSON report is returned. Your chat is never used to train any models.
+              To generate Whatarewe’s qualitative commentary, the truncated text is streamed over encrypted HTTPS to our server-side LLM endpoint and immediately garbage-collected once the structured JSON report is returned. Your chat is never used to train any models.
             </p>
           </div>
         </div>

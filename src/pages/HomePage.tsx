@@ -68,13 +68,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
           <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white border border-zinc-200 shadow-sm transition-transform duration-300 hover:scale-105 overflow-hidden">
             <img
               src={indusAvatar}
-              alt="Indus avatar"
+              alt="Whatarewe avatar"
               referrerPolicy="no-referrer"
               className="w-full h-full rounded-full object-cover transition-transform duration-300 ease-out hover:scale-110 cursor-pointer"
             />
           </div>
           <span className="absolute -bottom-1 right-0 bg-zinc-900 text-white text-[11px] font-medium px-2.5 py-0.5 rounded-full border-2 border-[#FAF9F6]">
-            Indus
+            Whatarewe
           </span>
         </div>
 
@@ -82,7 +82,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
           className="text-4xl sm:text-6xl font-editorial font-medium tracking-tight text-zinc-900 leading-[1.08] max-w-2xl mx-auto"
           style={{ textWrap: 'balance' }}
         >
-          Upload a chat. <span className="italic font-normal text-zinc-700">Indus</span> tells you what’s really going on.
+          Upload a chat. <span className="italic font-normal text-zinc-700">Whatarewe</span> tells you what’s really going on.
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-zinc-600 max-w-xl mx-auto leading-relaxed">
@@ -159,7 +159,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
                 Initiation ratios, reply latency, and the 11:00 PM curfew test
               </h3>
               <p className="mt-3 text-sm text-zinc-600 leading-relaxed max-w-xl">
-                Before Indus writes a single word of commentary, our parser maps every timestamp across your entire chat history: who breaks 6-hour silences, whose average reply time stretches on weekends, and how much of your connection only exists after 11 PM.
+                Before Whatarewe writes a single word of commentary, our parser maps every timestamp across your entire chat history: who breaks 6-hour silences, whose average reply time stretches on weekends, and how much of your connection only exists after 11 PM.
               </p>
             </div>
 
@@ -252,7 +252,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
       <section className="max-w-4xl mx-auto px-6">
         <div className="bg-zinc-900 text-white rounded-2xl p-8 sm:p-12 text-center">
           <h2 className="text-3xl sm:text-4xl font-editorial font-normal tracking-tight max-w-xl mx-auto" style={{ textWrap: 'balance' }}>
-            Ready to find out what Indus really thinks about your chat?
+            Ready to find out what Whatarewe really thinks about your chat?
           </h2>
           <p className="mt-3 text-sm sm:text-base text-zinc-300 max-w-lg mx-auto">
             Takes 45 seconds. Raw messages are parsed in memory and immediately discarded after your report is created.

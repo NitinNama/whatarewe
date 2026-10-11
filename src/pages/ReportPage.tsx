@@ -36,6 +36,7 @@ import indusAvatar from '../assets/images/avatar_indus_friend_1791121741937.jpg'
 import { StoredReport, CharacterProfileBlock } from '../types';
 import { RoutePath } from '../components/Header';
 import { generatePdfFromElement } from '../utils/pdfExporter';
+import { InstagramStoryCardModal } from '../components/InstagramStoryCardModal';
 
 interface ReportPageProps {
   reportData: StoredReport;
@@ -66,6 +67,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
   const [isPdfExporting, setIsPdfExporting] = useState(false);
   const [pdfProgress, setPdfProgress] = useState({ percent: 0, stage: '' });
   const [pdfErrorMessage, setPdfErrorMessage] = useState<string | null>(null);
+  const [showStoryCardModal, setShowStoryCardModal] = useState<boolean>(false);
 
   // Hot Take Deep Dive / Conspiracy Theory Modal States
   const [selectedHotTake, setSelectedHotTake] = useState<string | null>(null);
@@ -927,7 +929,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-md">
             <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-semibold block">
-              INDUS RELATIONSHIP ARCHIVE · CONFIDENTIAL DOSSIER
+              WHATAREWE RELATIONSHIP ARCHIVE · CONFIDENTIAL DOSSIER
             </span>
             <h1 className="text-3xl sm:text-4xl font-editorial font-semibold text-zinc-900 tracking-tight">
               {stats.participants.map((p) => p.name).join(' & ')}
@@ -961,7 +963,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 {analysisGradeInfo.descriptor}
               </p>
               <p className="text-[10px] font-mono text-zinc-500">
-                Score: {compatibilityScore}/100 · Certified by Indus
+                Score: {compatibilityScore}/100 · Certified by Whatarewe
               </p>
             </div>
           </div>
@@ -1282,7 +1284,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
       {/* Verification Footer for Print/PDF */}
       <div className="border-t border-zinc-200/80 pt-6 mt-12 text-center text-xs text-zinc-400 font-mono avoid-break">
-        <p>INDUS ARCHIVE · CONFIDENTIAL RELATIONSHIP AUTOPSY · REF #{id.toUpperCase().slice(0, 16)}</p>
+        <p>WHATAREWE ARCHIVE · CONFIDENTIAL RELATIONSHIP AUTOPSY · REF #{id.toUpperCase().slice(0, 16)}</p>
         <p className="mt-1">Generated {new Date(createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · End of Official Dossier</p>
       </div>
     </div>
@@ -1381,10 +1383,23 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               </span>
             )}
 
+            {/* Instagram Story Card Button */}
+            <button
+              onClick={() => {
+                triggerHaptic();
+                setShowStoryCardModal(true);
+              }}
+              className="bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-200 rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs shadow-2xs"
+              title="Generate 9:16 vertical card for Instagram Stories or WhatsApp status"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Story Card</span>
+            </button>
+
             {/* Share Link */}
             <button
               onClick={handleCopyShareLink}
-              className="hover:text-zinc-900 transition-colors inline-flex items-center gap-1 cursor-pointer px-2 py-1"
+              className="hover:text-zinc-900 transition-colors inline-flex items-center gap-1 cursor-pointer px-2 py-1 text-xs"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Share'}</span>
@@ -2038,6 +2053,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
                 <span>Instant Demo Unlock (Free Preview Pass)</span>
               </button>
+
+              <button
+                onClick={() => {
+                  setShowPaywallModal(false);
+                  onNavigate('/pricing');
+                }}
+                className="w-full py-1.5 text-center text-[11px] text-zinc-500 hover:text-zinc-800 font-mono transition-colors cursor-pointer"
+              >
+                🪙 Pay with Crypto (BTC, SOL, ETH, NEAR) or Supporter Pass →
+              </button>
             </div>
 
             <div className="text-[10px] text-zinc-400 font-mono text-center pt-2 border-t border-zinc-100">
@@ -2275,6 +2300,13 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           </div>
         </div>
       )}
+
+      {/* 6. Instagram Story Card Modal (9:16 vertical DOM-to-image capture) */}
+      <InstagramStoryCardModal
+        reportData={reportData}
+        isOpen={showStoryCardModal}
+        onClose={() => setShowStoryCardModal(false)}
+      />
     </div>
   );
 };
