@@ -74,7 +74,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
             />
           </div>
           <span className="absolute -bottom-1 right-0 bg-zinc-900 text-white text-[11px] font-medium px-2.5 py-0.5 rounded-full border-2 border-[#FAF9F6]">
-            Whatarewe
+            Indus
           </span>
         </div>
 

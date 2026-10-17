@@ -37,6 +37,7 @@ import { StoredReport, CharacterProfileBlock } from '../types';
 import { RoutePath } from '../components/Header';
 import { generatePdfFromElement } from '../utils/pdfExporter';
 import { InstagramStoryCardModal } from '../components/InstagramStoryCardModal';
+import { VoiceAndInitiationCards } from '../components/VoiceAndInitiationCards';
 
 interface ReportPageProps {
   reportData: StoredReport;
@@ -301,8 +302,6 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
   const p1 = stats?.participants?.[0] || { name: 'Person A', messageCount: 100, initiationPercent: 65, avgReplyMinutes: 6 };
   const p2 = stats?.participants?.[1] || { name: 'Person B', messageCount: 50, initiationPercent: 35, avgReplyMinutes: 60 };
   const totalMsgs = stats?.totalMessages || p1.messageCount + p2.messageCount;
-  const p1MsgPct = Math.round((p1.messageCount / Math.max(1, totalMsgs)) * 100);
-  const p2MsgPct = 100 - p1MsgPct;
 
   const maxHourlyCount = Math.max(...(stats.hourlyDistribution || []).map((h) => h.count), 1);
 
@@ -1020,75 +1019,11 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         </div>
       </div>
 
-      {/* Slide 2 Who Talks / Who Starts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 avoid-break">
-        <div className="bg-[#EAE6F8] rounded-3xl p-7 flex flex-col justify-between border border-purple-200/60 shadow-xs">
-          <div>
-            <span className="text-xs font-mono text-purple-800 uppercase tracking-wider font-semibold">Message Distribution</span>
-            <h3 className="text-2xl font-editorial text-zinc-900 mt-1">Who fills the screen</h3>
-          </div>
-          <div className="my-6 flex items-center justify-center relative">
-            <svg className="w-44 h-44 transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="38" stroke="#0D9488" strokeWidth="16" fill="none" />
-              <circle
-                cx="50"
-                cy="50"
-                r="38"
-                stroke="#8B5CF6"
-                strokeWidth="16"
-                fill="none"
-                strokeDasharray="238.76"
-                strokeDashoffset={238.76 * (p1MsgPct / 100)}
-              />
-            </svg>
-            <div className="absolute flex flex-col items-center">
-              <span className="text-xs font-mono text-zinc-500 uppercase">Leader</span>
-              <span className="text-2xl font-semibold font-mono text-zinc-900">{p1.name}</span>
-              <span className="text-xs font-mono text-teal-700 font-semibold">{p1MsgPct}%</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-purple-200/50 text-xs font-mono tabular-nums">
-            <div>
-              <p className="font-semibold text-zinc-900">{p1.name}</p>
-              <p className="text-zinc-500">{p1.messageCount} msgs ({p1MsgPct}%)</p>
-            </div>
-            <div>
-              <p className="font-semibold text-zinc-900">{p2.name}</p>
-              <p className="text-zinc-500">{p2.messageCount} msgs ({p2MsgPct}%)</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#E6F4EA] rounded-3xl p-7 flex flex-col justify-between border border-emerald-200/60 shadow-xs">
-          <div>
-            <span className="text-xs font-mono text-emerald-800 uppercase tracking-wider font-semibold">Conversation Starters</span>
-            <h3 className="text-2xl font-editorial text-zinc-900 mt-1">Who breaks the silence</h3>
-          </div>
-          <div className="my-8 space-y-6">
-            <div>
-              <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                <span>{p1.name}</span>
-                <span className="font-mono text-teal-800">{p1.initiationPercent}% ({p1.initiationCount} starts)</span>
-              </div>
-              <div className="w-full h-4 bg-emerald-200/60 rounded-full overflow-hidden p-0.5">
-                <div className="h-full bg-teal-600 rounded-full" style={{ width: `${p1.initiationPercent}%` }} />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                <span>{p2.name}</span>
-                <span className="font-mono text-purple-800">{p2.initiationPercent}% ({p2.initiationCount} starts)</span>
-              </div>
-              <div className="w-full h-4 bg-emerald-200/60 rounded-full overflow-hidden p-0.5">
-                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${p2.initiationPercent}%` }} />
-              </div>
-            </div>
-          </div>
-          <div className="p-3.5 bg-white/70 rounded-xl border border-emerald-200/70 text-xs text-zinc-700">
-            <span className="font-semibold text-emerald-950">Brandon Note:</span> {p1.name} initiates {p1.initiationPercent}% of all conversations.
-          </div>
-        </div>
-      </div>
+      {/* Slide 2 Who Talks / Who Starts (Card 1: Share of voice & Card 2: Who starts the conversation) */}
+      <VoiceAndInitiationCards
+        participants={stats.participants}
+        totalMessages={stats.totalMessages}
+      />
 
       {/* Slide 3 Rhythm & Cadence */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 avoid-break">
@@ -1572,102 +1507,10 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   </h1>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Lavender Card: Donut Chart - Who Talks More */}
-                  <div className="bg-[#EAE6F8] rounded-3xl p-7 flex flex-col justify-between border border-purple-200/60 shadow-xs">
-                    <div>
-                      <span className="text-xs font-mono text-purple-800 uppercase tracking-wider font-semibold">Message Distribution</span>
-                      <h2 className="text-2xl font-editorial text-zinc-900 mt-1">Who fills the screen</h2>
-                      <p className="text-xs text-zinc-600 mt-1">Total words and overall message share</p>
-                    </div>
-
-                    <div className="my-6 flex items-center justify-center relative">
-                      <svg className="w-44 h-44 transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="38" stroke="#0D9488" strokeWidth="16" fill="none" />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="38"
-                          stroke="#8B5CF6"
-                          strokeWidth="16"
-                          fill="none"
-                          strokeDasharray="238.76"
-                          strokeDashoffset={238.76 * (p1MsgPct / 100)}
-                        />
-                      </svg>
-                      <div className="absolute flex flex-col items-center">
-                        <span className="text-xs font-mono text-zinc-500 uppercase">Leader</span>
-                        <span className="text-2xl font-semibold font-mono text-zinc-900">{p1.name}</span>
-                        <span className="text-xs font-mono text-teal-700 font-semibold">{p1MsgPct}%</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-purple-200/50 text-xs font-mono tabular-nums">
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-teal-600 shrink-0" />
-                        <div>
-                          <p className="font-semibold text-zinc-900">{p1.name}</p>
-                          <p className="text-zinc-500">{p1.messageCount} msgs ({p1MsgPct}%)</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-purple-500 shrink-0" />
-                        <div>
-                          <p className="font-semibold text-zinc-900">{p2.name}</p>
-                          <p className="text-zinc-500">{p2.messageCount} msgs ({p2MsgPct}%)</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mint/Green Card: Horizontal Progress Bars - Who Starts */}
-                  <div className="bg-[#E6F4EA] rounded-3xl p-7 flex flex-col justify-between border border-emerald-200/60 shadow-xs">
-                    <div>
-                      <span className="text-xs font-mono text-emerald-800 uppercase tracking-wider font-semibold">Conversation Starters</span>
-                      <h2 className="text-2xl font-editorial text-zinc-900 mt-1">Who breaks the silence</h2>
-                      <p className="text-xs text-zinc-600 mt-1">New threads started after 6+ hours of radio silence</p>
-                    </div>
-
-                    <div className="my-8 space-y-6">
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                          <span className="flex items-center gap-2 text-zinc-900">
-                            <span className="w-2.5 h-2.5 rounded-full bg-teal-600" />
-                            <span>{p1.name}</span>
-                          </span>
-                          <span className="font-mono text-teal-800">{p1.initiationPercent}% ({p1.initiationCount} starts)</span>
-                        </div>
-                        <div className="w-full h-4 bg-emerald-200/60 rounded-full overflow-hidden p-0.5">
-                          <div
-                            className="h-full bg-teal-600 rounded-full transition-all duration-500"
-                            style={{ width: `${p1.initiationPercent}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                          <span className="flex items-center gap-2 text-zinc-900">
-                            <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                            <span>{p2.name}</span>
-                          </span>
-                          <span className="font-mono text-purple-800">{p2.initiationPercent}% ({p2.initiationCount} starts)</span>
-                        </div>
-                        <div className="w-full h-4 bg-emerald-200/60 rounded-full overflow-hidden p-0.5">
-                          <div
-                            className="h-full bg-purple-500 rounded-full transition-all duration-500"
-                            style={{ width: `${p2.initiationPercent}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 bg-white/70 rounded-xl border border-emerald-200/70 text-xs text-zinc-700">
-                      <span className="font-semibold text-emerald-950">Brandon Note:</span> {p1.name} initiates{' '}
-                      <span className="font-semibold text-teal-800 font-mono">{p1.initiationPercent}%</span> of conversations.
-                    </div>
-                  </div>
-                </div>
+                <VoiceAndInitiationCards
+                  participants={stats.participants}
+                  totalMessages={stats.totalMessages}
+                />
               </div>
             )}
 

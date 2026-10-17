@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
-import { PREBUILT_SAMPLE_REPORT } from './src/data/sampleChats';
+import { PREBUILT_SAMPLE_REPORT, ALL_SAMPLE_REPORTS } from './src/data/sampleChats';
 import { StoredReport, IndusReportContent } from './src/types';
 
 dotenv.config();
@@ -18,7 +18,9 @@ const PORT = 3000;
 app.use(express.json({ limit: '15mb' }));
 
 const reportsStore = new Map<string, StoredReport>();
-reportsStore.set(PREBUILT_SAMPLE_REPORT.id, PREBUILT_SAMPLE_REPORT);
+Object.values(ALL_SAMPLE_REPORTS).forEach((report) => {
+  reportsStore.set(report.id, report);
+});
 
 function getGenAIClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -292,6 +294,74 @@ const REPORT_RESPONSE_SCHEMA = {
     },
     verdict: { type: Type.STRING },
     whatToDoNext: { type: Type.ARRAY, items: { type: Type.STRING } },
+    planConversionFunnel: {
+      type: Type.OBJECT,
+      properties: {
+        hangoutsProposed: { type: Type.INTEGER, description: 'Total hangouts/plans proposed over text' },
+        initialEnthusiasmPercent: { type: Type.INTEGER, description: 'Percentage met with initial enthusiasm (e.g. 65)' },
+        dateBudgetAgreedPercent: { type: Type.INTEGER, description: 'Percentage that reached date/budget agreement (e.g. 20)' },
+        actuallyOccurredPercent: { type: Type.INTEGER, description: 'Percentage that actually materialized (e.g. 4)' },
+        actuallyOccurredCount: { type: Type.INTEGER, description: 'Actual number of hangouts executed' },
+        verdict: { type: Type.STRING, description: 'Comparison of group follow-through to venture capital hit rate' },
+        summary: { type: Type.STRING },
+      },
+      required: ['hangoutsProposed', 'initialEnthusiasmPercent', 'dateBudgetAgreedPercent', 'actuallyOccurredPercent', 'actuallyOccurredCount', 'verdict', 'summary'],
+    },
+    ghostingIndex: {
+      type: Type.OBJECT,
+      properties: {
+        mostLeftOnReadPerson: { type: Type.STRING, description: 'Name of the member whose messages were most frequently left hanging' },
+        unansweredCount: { type: Type.INTEGER, description: 'Count of messages with 0 replies' },
+        longestSilenceExhibit: {
+          type: Type.OBJECT,
+          properties: {
+            sender: { type: Type.STRING },
+            timestamp: { type: Type.STRING },
+            message: { type: Type.STRING },
+            hoursIgnored: { type: Type.INTEGER },
+          },
+          required: ['sender', 'timestamp', 'message', 'hoursIgnored'],
+        },
+        analysis: { type: Type.STRING, description: 'Brandon autopsy on how silences end' },
+      },
+      required: ['mostLeftOnReadPerson', 'unansweredCount', 'longestSilenceExhibit', 'analysis'],
+    },
+    nightVsDayPersona: {
+      type: Type.OBJECT,
+      properties: {
+        contrasts: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              nightMessage: {
+                type: Type.OBJECT,
+                properties: {
+                  timestamp: { type: Type.STRING },
+                  text: { type: Type.STRING },
+                  subtext: { type: Type.STRING },
+                },
+                required: ['timestamp', 'text', 'subtext'],
+              },
+              dayMessage: {
+                type: Type.OBJECT,
+                properties: {
+                  timestamp: { type: Type.STRING },
+                  text: { type: Type.STRING },
+                  subtext: { type: Type.STRING },
+                },
+                required: ['timestamp', 'text', 'subtext'],
+              },
+              analysis: { type: Type.STRING },
+            },
+            required: ['name', 'nightMessage', 'dayMessage', 'analysis'],
+          },
+        },
+        overallInsight: { type: Type.STRING },
+      },
+      required: ['contrasts', 'overallInsight'],
+    },
   },
   required: [
     'headline',
@@ -536,6 +606,59 @@ function buildFallbackReport(stats: any, relationshipType: string): IndusReportC
       `Keep heavy or defining conversations off text after 10:30 PM—save them for voice or daylight.`,
       `Notice whether the connection still moves forward when you stop acting as the cruise director.`,
     ],
+    planConversionFunnel: {
+      hangoutsProposed: 18,
+      initialEnthusiasmPercent: 67,
+      dateBudgetAgreedPercent: 22,
+      actuallyOccurredPercent: 5,
+      actuallyOccurredCount: 1,
+      verdict: `A 5.5% plan conversion rate—statistically worse than early-stage venture capital success rates. You treat meetup ideas as dopamine vouchers rather than calendar commitments.`,
+      summary: `Out of 18 proposed dinners, exhibitions, and weekend trips dropped into the thread, only a single casual coffee actually materialized. The rest evaporated in the "let me play it by ear" Bermuda Triangle.`,
+    },
+    ghostingIndex: {
+      mostLeftOnReadPerson: p1,
+      unansweredCount: 9,
+      longestSilenceExhibit: {
+        sender: p1,
+        timestamp: 'Thursday 11:42 PM',
+        message: 'Are you free next weekend? There is that exhibition at the museum I told you about',
+        hoursIgnored: 46,
+      },
+      analysis: `A 46-hour silence broken not with a calendar confirmation, but with an unrelated TikTok reel about espresso martinis. Plausible deniability weaponized into an art form.`,
+    },
+    nightVsDayPersona: {
+      contrasts: [
+        {
+          name: p1,
+          nightMessage: {
+            timestamp: '01:45 AM',
+            text: 'I just feel like we only ever hang out when it is convenient for your schedule tbh',
+            subtext: 'I care deeply and the casualness is quietly chipping away at my self-esteem.',
+          },
+          dayMessage: {
+            timestamp: '11:15 AM',
+            text: 'Haha sorry was so sleepy last night ignore me! Have the best day at work ✨',
+            subtext: 'Panic damage control to ensure I do not scare you away with my actual emotional needs.',
+          },
+          analysis: `At 1:45 AM, ${p1} lets down their ironclad defense mechanisms. By 11:15 AM, the corporate PR team takes over with self-deprecating apologies and sparkle emojis.`,
+        },
+        {
+          name: p2,
+          nightMessage: {
+            timestamp: '02:10 AM',
+            text: 'You up? Heading back to my apartment now, come over?',
+            subtext: 'I want physical intimacy and easy company without the emotional accountability of daylight.',
+          },
+          dayMessage: {
+            timestamp: '01:30 PM',
+            text: 'Man work is absolute chaos right now, head is completely underwater with this pitch',
+            subtext: 'I am establishing an impenetrable busy-person defense perimeter before you ask for weekend plans.',
+          },
+          analysis: `At 2:10 AM, ${p2} has infinite emotional bandwidth for low-stakes connection. By 1:30 PM, they are suddenly the CEO of an offshore conglomerate battling impossible deadlines.`,
+        },
+      ],
+      overallInsight: `The chat operates under two completely different sets of physics: nighttime raw impulse vs. daytime strategic aloofness.`,
+    },
   };
 }
 
@@ -583,6 +706,7 @@ app.post('/api/analyze', async (req, res) => {
 - Could this assessment be about ANY random chat? If yes: REWRITE IT. It must be unmistakably grounded in this specific thread's vocabulary, excuses, inside jokes, and hours.
 - Does the subtext reader decode what was felt rather than just restating what was texted?
 - Are the character profiles written in 2nd person with inline evidence bubbles?
+- Ensure all 19 forensic chapters are fully fleshed out: including planConversionFunnel, ghostingIndex, and nightVsDayPersona.
 
 Context about this chat:
 - Relationship Category: ${relationshipType}
@@ -612,7 +736,10 @@ Generate a structured JSON report matching the schema with:
 14. compatibility (overall 0-100 score + 5 dimensions)
 15. playlist (5 tracks soundtracking the chat with reasons)
 16. movie (genre, tagline, casting, ending)
-17. awards, verdict, whatToDoNext.`;
+17. awards, verdict, whatToDoNext
+18. planConversionFunnel (hangoutsProposed, initialEnthusiasmPercent, dateBudgetAgreedPercent, actuallyOccurredPercent, actuallyOccurredCount, verdict, summary)
+19. ghostingIndex (mostLeftOnReadPerson, unansweredCount, longestSilenceExhibit, analysis)
+20. nightVsDayPersona (contrasts for each participant between 2 AM vulnerability and 11 AM daylight persona, overallInsight).`;
 
   try {
     const ai = getGenAIClient();

@@ -6,7 +6,7 @@ import { SetupPage } from './pages/SetupPage';
 import { ReportPage } from './pages/ReportPage';
 import { PricingPage } from './pages/PricingPage';
 import { PrivacyPage } from './pages/PrivacyPage';
-import { PREBUILT_SAMPLE_REPORT } from './data/sampleChats';
+import { PREBUILT_SAMPLE_REPORT, ALL_SAMPLE_REPORTS } from './data/sampleChats';
 import { RelationshipType, StoredReport } from './types';
 
 export default function App() {
@@ -18,22 +18,27 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const sharedReportId = params.get('report');
     if (sharedReportId) {
-      fetch(`/api/reports/${encodeURIComponent(sharedReportId)}`)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data: StoredReport | null) => {
-          if (data) {
-            setActiveReport(data);
-            setCurrentPath('/report');
-          }
-        })
-        .catch(() => {});
+      if (ALL_SAMPLE_REPORTS[sharedReportId]) {
+        setActiveReport(ALL_SAMPLE_REPORTS[sharedReportId]);
+        setCurrentPath('/report');
+      } else {
+        fetch(`/api/reports/${encodeURIComponent(sharedReportId)}`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data: StoredReport | null) => {
+            if (data) {
+              setActiveReport(data);
+              setCurrentPath('/report');
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, []);
 
   const handleNavigate = (path: RoutePath, reportId?: string) => {
     if (path === '/report' && reportId) {
-      if (reportId === PREBUILT_SAMPLE_REPORT.id) {
-        setActiveReport(PREBUILT_SAMPLE_REPORT);
+      if (ALL_SAMPLE_REPORTS[reportId]) {
+        setActiveReport(ALL_SAMPLE_REPORTS[reportId]);
       } else {
         fetch(`/api/reports/${encodeURIComponent(reportId)}`)
           .then((r) => (r.ok ? r.json() : null))

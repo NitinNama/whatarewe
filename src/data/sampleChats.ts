@@ -512,5 +512,796 @@ export const PREBUILT_SAMPLE_REPORT: StoredReport = {
       'Retire the phrase "no rush at all" from your keyboard for the next 30 days.',
       'Put a quiet 11:00 PM curfew on last-minute hangouts—if it wasn’t planned before dinner, you’re already asleep.',
     ],
+    planConversionFunnel: {
+      hangoutsProposed: 21,
+      initialEnthusiasmPercent: 71,
+      dateBudgetAgreedPercent: 24,
+      actuallyOccurredPercent: 5,
+      actuallyOccurredCount: 1,
+      verdict:
+        'A 4.7% conversion hit rate. You have better odds of getting a prime table at Carbone without a reservation than getting Julian to confirm a daylight weekend plan.',
+      summary:
+        'Maya floated 21 distinct outings (Metrograph screenings, bakery runs, gallery openings). Initial responses were 71% enthusiastic ("1000% down!", "Need this!"), but collapsed the instant calendar dates required locking in.',
+    },
+    ghostingIndex: {
+      mostLeftOnReadPerson: 'Maya',
+      unansweredCount: 14,
+      longestSilenceExhibit: {
+        sender: 'Maya',
+        timestamp: 'Feb 18, 06:30 PM',
+        message:
+          'Hey! My friends are doing dinner for my birthday next Saturday at 8, would love for you to come if you\'re around',
+        hoursIgnored: 16.5,
+      },
+      analysis:
+        'Julian left Maya’s birthday invitation hanging for 16.5 hours before countering with a speculative "might have to be in Boston for family stuff" non-commitment.',
+    },
+    nightVsDayPersona: {
+      contrasts: [
+        {
+          name: 'Maya',
+          nightMessage: {
+            timestamp: '01:16 AM',
+            text: 'Just finishing a chapter, yeah why?',
+            subtext: 'I was half asleep but I will revive myself for a crumb of your attention.',
+          },
+          dayMessage: {
+            timestamp: '11:07 AM',
+            text: 'Oh okay! Hopefully you can make it, everyone keeps asking if you actually exist 😂',
+            subtext: 'I am using self-deprecating humor to mask how deeply embarrassing this avoidance is.',
+          },
+          analysis:
+            'Maya plays the effortlessly nonchalant art director by day, saving her unpadded emotional truth for midnight.',
+        },
+        {
+          name: 'Julian',
+          nightMessage: {
+            timestamp: '02:05 AM',
+            text: 'Heading back to my place in Williamsburg, come over?',
+            subtext: 'My intimacy barriers drop exclusively between 1:00 AM and sunrise.',
+          },
+          dayMessage: {
+            timestamp: '02:40 PM',
+            text: 'Honestly my head is just completely underwater with the studio launch right now',
+            subtext: 'I am establishing an impenetrable busy-person defense perimeter before you ask for weekend plans.',
+          },
+          analysis:
+            'Julian exists in two completely separate time zones: a spontaneous midnight romantic and a daytime corporate recluse.',
+        },
+      ],
+      overallInsight:
+        'The relationship lives entirely in the twilight zone between 11 PM and 2 AM, completely evaporating when exposed to broad daylight.',
+    },
   },
 };
+
+export const SAMPLE_REPORT_BOYS_GROUP: StoredReport = {
+  id: 'boys-group-sample',
+  createdAt: '2026-10-06T12:00:00.000Z',
+  relationshipType: 'Boys group 🐐',
+  platform: 'whatsapp',
+  isSample: true,
+  stats: {
+    totalMessages: 6410,
+    totalWords: 52980,
+    totalDays: 140,
+    activeDaysCount: 92,
+    dateRange: 'Jan 02, 2026 – May 21, 2026',
+    platform: 'whatsapp',
+    peakHourLabel: '1 PM – 3 PM & 10 PM',
+    peakDayLabel: 'Thursday',
+    longestSilenceHours: 168.0,
+    avgResponseOverallMinutes: 110,
+    lateNightPercent: 34,
+    participants: [
+      {
+        name: 'Marcus',
+        messageCount: 2310,
+        wordCount: 24200,
+        avgLengthWords: 10.5,
+        initiationCount: 68,
+        initiationPercent: 48,
+        avgReplyMinutes: 12,
+        doubleTextCount: 84,
+        topEmojis: [
+          { emoji: '💀', count: 120 },
+          { emoji: '😭', count: 94 },
+          { emoji: '🤦‍♂️', count: 45 },
+          { emoji: '✈️', count: 32 },
+          { emoji: '📊', count: 21 },
+        ],
+        questionCount: 380,
+      },
+      {
+        name: 'Devon',
+        messageCount: 1680,
+        wordCount: 12400,
+        avgLengthWords: 7.4,
+        initiationCount: 32,
+        initiationPercent: 23,
+        avgReplyMinutes: 45,
+        doubleTextCount: 18,
+        topEmojis: [
+          { emoji: '🔥', count: 85 },
+          { emoji: '🤝', count: 44 },
+          { emoji: '👀', count: 39 },
+          { emoji: '🍻', count: 28 },
+          { emoji: '😬', count: 19 },
+        ],
+        questionCount: 110,
+      },
+      {
+        name: 'Leo',
+        messageCount: 1420,
+        wordCount: 9600,
+        avgLengthWords: 6.7,
+        initiationCount: 25,
+        initiationPercent: 18,
+        avgReplyMinutes: 92,
+        doubleTextCount: 14,
+        topEmojis: [
+          { emoji: '🔥', count: 140 },
+          { emoji: '🐐', count: 68 },
+          { emoji: '😂', count: 58 },
+          { emoji: '🫡', count: 35 },
+          { emoji: '🏎️', count: 18 },
+        ],
+        questionCount: 75,
+      },
+      {
+        name: 'Tariq',
+        messageCount: 1000,
+        wordCount: 6780,
+        avgLengthWords: 6.8,
+        initiationCount: 15,
+        initiationPercent: 11,
+        avgReplyMinutes: 180,
+        doubleTextCount: 6,
+        topEmojis: [
+          { emoji: '😂', count: 72 },
+          { emoji: '💤', count: 38 },
+          { emoji: '🎓', count: 22 },
+          { emoji: '🤷‍♂️', count: 18 },
+          { emoji: '💵', count: 12 },
+        ],
+        questionCount: 42,
+      },
+    ],
+    recordDay: { date: '2026-02-01', count: 412 },
+    longestStreakDays: 34,
+    hourlyDistribution: [
+      { hour: '00:00', count: 240 },
+      { hour: '02:00', count: 80 },
+      { hour: '08:00', count: 110 },
+      { hour: '10:00', count: 320 },
+      { hour: '12:00', count: 650 },
+      { hour: '14:00', count: 890 },
+      { hour: '16:00', count: 710 },
+      { hour: '18:00', count: 620 },
+      { hour: '20:00', count: 850 },
+      { hour: '22:00', count: 1120 },
+    ],
+    dayOfWeekDistribution: [
+      { day: 'Mon', count: 820 },
+      { day: 'Tue', count: 910 },
+      { day: 'Wed', count: 1020 },
+      { day: 'Thu', count: 1280 },
+      { day: 'Fri', count: 1140 },
+      { day: 'Sat', count: 680 },
+      { day: 'Sun', count: 560 },
+    ],
+    monthlyTimeline: [
+      { month: 'Jan 2026', count: 1420, avgReplyMinutes: 95 },
+      { month: 'Feb 2026', count: 2680, avgReplyMinutes: 65 },
+      { month: 'Mar 2026', count: 1210, avgReplyMinutes: 140 },
+      { month: 'Apr 2026', count: 650, avgReplyMinutes: 190 },
+      { month: 'May 2026', count: 450, avgReplyMinutes: 240 },
+    ],
+    heatmapDays: Array.from({ length: 70 }, (_, i) => ({
+      date: `2026-${String(Math.floor(i / 30) + 1).padStart(2, '0')}-${String((i % 30) + 1).padStart(2, '0')}`,
+      dayOfWeek: i % 7,
+      weekIndex: Math.floor(i / 7),
+      count: (i * 37) % 115,
+      level: ((i * 37) % 115) > 80 ? 4 : ((i * 37) % 115) > 50 ? 3 : ((i * 37) % 115) > 20 ? 2 : 1,
+    })),
+    topSharedWords: [
+      { word: 'flights', count: 118, usedBy: 'Marcus' },
+      { word: 'locked', count: 84, usedBy: 'Devon' },
+      { word: 'villa', count: 67, usedBy: 'Leo' },
+      { word: 'sheet', count: 59, usedBy: 'Marcus' },
+      { word: 'maybe', count: 52, usedBy: 'Tariq' },
+    ],
+  },
+  report: {
+    headline: 'The Grand Delusion: 4 Airbnb Tabs, 0 Booked Flights, and Devon’s Cousin',
+    subheadline: 'A masterclass in high-testosterone group trip enthusiasm systematically defeated by Google Sheets aversion.',
+    overview:
+      'I read all 6,410 messages in this group. Marcus is functioning as an unpaid travel agency director on the verge of a stress-induced cardiac event. Devon drops instant "1000% locked in" promises before remembering mandatory weddings, Leo votes fire emojis on car rental spreadsheets, and Tariq appears exclusively to ask if middle school graduations conflict with Europe.',
+    characterChapterTitle: 'The Personnel Dossier: Unpaid Agents & Logistical Delinquents',
+    characterProfiles: [
+      {
+        name: 'Marcus',
+        funnyTitle: 'Marcus — Minister of Unread Google Sheets & Flight Escalation 📊',
+        personalitySummary:
+          'Marcus treats the group chat like an airport traffic control tower. He does the math, tracks airfare swings, and slowly watches his sanity leave his body.',
+        signatureMove: 'Pasting the updated flight price with passive-aggressive dollar deltas',
+        bestMoment: 'Finding $540 roundtrip flights within 14 minutes of opening Skyscanner',
+        worstMoment: 'Typing an all-caps monologue comparing the group to a failing municipal transit board',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Marcus, you have spent 140 days acting as an unpaid Expedia concierge for three adult men who cannot locate their own passport expiry dates:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Update: Flights are now $690 because nobody sent me their passport numbers on Friday.' },
+          },
+          {
+            type: 'prose',
+            content: 'And instead of acknowledging the logistical collapse, what did your best friends send in response?',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Option 2 goes crazy 🔥🔥 (it was the rental car tab)' },
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 4,
+          responseSpeed: 5,
+          vulnerability: 3,
+          doubleTextEnergy: 5,
+          pettyPotential: 4,
+          humorIndex: 5,
+        },
+      },
+      {
+        name: 'Leo',
+        funnyTitle: 'Leo — Hype Instigator & Visual Literacy Dodger 🏎️',
+        personalitySummary: 'Leo brings immaculate vibes and zero reading comprehension to every proposed itinerary.',
+        signatureMove: 'Reacting with 🔥 to spreadsheets he has not opened',
+        bestMoment: 'Offering to cover the deposit if Marcus fronted the card for 48 hours',
+        worstMoment: 'Mistaking a Hertz compact sedan breakdown for an infinity pool ocean villa',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Leo, your confidence is an inspiration to hedge fund managers everywhere:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: '1000% in, nothing stopping me this year' },
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 3,
+          responseSpeed: 3,
+          vulnerability: 2,
+          doubleTextEnergy: 2,
+          pettyPotential: 2,
+          humorIndex: 5,
+        },
+      },
+    ],
+    theShift: {
+      period: 'Mid-February 2026',
+      headline: 'The $150 Fare Hike & The Vermont Wedding',
+      analysis:
+        'Once flights jumped from $540 to $690 due to missed deadlines, Devon revealed his girlfriend’s Vermont family wedding, detonating the calendar consensus.',
+      metricChange: 'Daily group chat volume plummeted by 76% in two weeks',
+    },
+    vibeTimeline: [
+      { month: 'Jan 2026', temperature: 'Boiling 🔥', degrees: 94, summary: 'Pure optimism, Pinterest villa screenshots.' },
+      { month: 'Feb 2026', temperature: 'Volatile ⚡', degrees: 78, summary: 'Google Sheet drop, passport deadline war.' },
+      { month: 'Mar 2026', temperature: 'Lukewarm ☁️', degrees: 48, summary: 'Vermont wedding excuse, silent postponements.' },
+      { month: 'Apr 2026', temperature: 'Freezing ❄️', degrees: 28, summary: 'Only Instagram memes, zero trip mentions.' },
+    ],
+    loveLanguages: {
+      breakdown: [
+        {
+          name: 'Marcus',
+          primaryLanguage: 'Acts of Service (Spreadsheets)',
+          secondaryLanguage: 'Quality Time',
+          expressionScore: 92,
+          notes: 'Shows love by finding Airbnb coupon codes and organizing rental insurance.',
+        },
+        {
+          name: 'The Rest of the Group',
+          primaryLanguage: 'Words of Affirmation (Empty Promises)',
+          secondaryLanguage: 'Shared Laughter',
+          expressionScore: 40,
+          notes: 'Shows love by hyping up plans they secretly know they will never attend.',
+        },
+      ],
+      mismatchAnalysis: 'Marcus operates on Swiss rail logistics; the rest of the group operates on jazz improvisation.',
+    },
+    theUnsaidThings: {
+      subtextAnalysis: 'Everyone wants the group photo in Portugal; nobody wants to actually Venmo Marcus $800 upfront.',
+      unspokenThoughts: [
+        {
+          person: 'Devon',
+          whatTheyTexted: ' Sarah just reminded me we have a wedding in Vermont June 14th',
+          whatTheyActuallyFelt: 'I cannot afford both Europe and my girlfriend’s summer vacation, and I chose survival.',
+        },
+        {
+          person: 'Marcus',
+          whatTheyTexted: 'All good man, let’s look at July then!',
+          whatTheyActuallyFelt: 'I am never organizing anything for you clowns ever again.',
+        },
+      ],
+    },
+    whoCaresMore: {
+      personA: 'Marcus',
+      personAPercent: 82,
+      personB: 'The Group',
+      personBPercent: 18,
+      evidence: [
+        'Marcus built 4 Google Sheets and 2 Notion boards.',
+        'Marcus initiated 48% of messages.',
+        'Marcus checked flight prices 6 times a day for 3 weeks.',
+      ],
+      verdict: 'Marcus is the captain of a ghost ship sailing toward Lisbon.',
+    },
+    conflictReport: {
+      fightPatterns: 'Logistical nudges met with radio silence and meme deflections.',
+      whoInstigates: 'Marcus by posting hard deadlines.',
+      whoDeEscalates: 'Leo by posting funny reels.',
+      conflictResolutionStyle: 'Total collective amnesia until someone suggests Montreal next fall.',
+    },
+    flags: {
+      greenFlags: [
+        'Genuine camaraderie and hilarious banter.',
+        'Zero malice or genuine spite.',
+        'Would defend each other in a bar fight without hesitation.',
+      ],
+      redFlags: [
+        '0% booking follow-through on non-local plans.',
+        'Severe inability to look at a calendar before committing.',
+      ],
+    },
+    emojiAutopsy: {
+      overallRead: 'A heavy reliance on skulls and tears to deflect from broken promises.',
+      items: [
+        { emoji: '💀', count: 120, userReads: 'Deflecting genuine embarrassment after missing a payment cutoff.', trendOverTime: 'Spikes every Friday.' },
+        { emoji: '🔥', count: 140, userReads: 'Empty hype fuel.', trendOverTime: 'Drops after ticket purchase prompts.' },
+      ],
+    },
+    hotTakes: [
+      'Devon knew about the Vermont wedding in November.',
+      'Leo still thinks Option 2 had an infinity pool.',
+      'The Lisbon trip will eventually happen in 2031 with baby strollers.',
+    ],
+    attachmentStyles: [
+      { name: 'Marcus', style: 'Anxious Preoccupied 🌊', evidence: 'Needs calendar confirmation to feel brotherhood.', textingBehavior: 'Triple-texts with flight screenshots.' },
+      { name: 'Devon', style: 'Dismissive Avoidant 🛡️', evidence: 'Blames romantic partner to evade financial commitments.', textingBehavior: 'Disappears for 72 hours when cards are drawn.' },
+    ],
+    iconicMoment: {
+      quoteSnippet: 'Marcus: "Option 2 is the rental car tab."\nLeo: "Still fire though bro"',
+      context: 'The exact moment the European dream died.',
+      whyItMatters: 'Captures the irreducible essence of male group chat dynamics.',
+    },
+    compatibility: {
+      overallScore: 78,
+      dimensions: [
+        { dimension: 'Banter & Laughs', score: 98 },
+        { dimension: 'Travel Logistics', score: 14 },
+        { dimension: 'Financial Accountability', score: 42 },
+        { dimension: 'Loyalty in Crisis', score: 94 },
+        { dimension: 'Calendar Realism', score: 20 },
+      ],
+      summary: 'Legendary friends for beers and PlayStation; catastrophic business or travel partners.',
+    },
+    playlist: [
+      { title: 'Stayin’ Alive', artist: 'Bee Gees', reason: 'For Marcus attempting to keep the itinerary pulse beating.' },
+      { title: 'Money Trees', artist: 'Kendrick Lamar', reason: 'For everyone dreaming of Portugal on a student budget.' },
+      { title: 'Go Your Own Way', artist: 'Fleetwood Mac', reason: 'For Devon going to Vermont instead.' },
+      { title: 'Wish You Were Here', artist: 'Pink Floyd', reason: 'For the empty Airbnb in Lisbon.' },
+      { title: 'See You Again', artist: 'Wiz Khalifa', reason: 'Until the next delusional group trip proposal.' },
+    ],
+    movie: {
+      genre: 'Buddy Comedy / Financial Absurdism',
+      tagline: 'Four passports. Two airlines. One Google Sheet nobody opened.',
+      casting: [
+        { person: 'Marcus', actor: 'Jonah Hill', roleDescription: 'The exasperated travel agent with an Excel spreadsheet.' },
+        { person: 'Leo', actor: 'Glen Powell', roleDescription: 'The charming guy who loves rental car formulas.' },
+      ],
+      plotEnding: 'The boys end up eating tacos at a local diner 15 minutes from Marcus’s house, having the best time of their lives.',
+    },
+    awards: [
+      { recipient: 'Marcus', title: 'The Unpaid Travel Agent Cross 🎖️', reason: 'For keeping the spreadsheet open for 14 straight weeks.' },
+      { recipient: 'Leo', title: 'The Rental Car Enthusiast 🚗', reason: 'For recognizing greatness in vehicle lease terms.' },
+    ],
+    verdict: 'Stop trying to book Lisbon. Book a cabin four hours away where nobody needs a passport, Marcus can bring a grill, and nobody has to look at Skyscanner.',
+    whatToDoNext: [
+      'Delete the Lisbon Google Sheet from Google Drive.',
+      'Book a weekend lake house cabin with a $50 deposit per person.',
+      'Make Devon bring the steaks to make up for Vermont.',
+    ],
+    planConversionFunnel: {
+      hangoutsProposed: 14,
+      initialEnthusiasmPercent: 100,
+      dateBudgetAgreedPercent: 35,
+      actuallyOccurredPercent: 7,
+      actuallyOccurredCount: 1,
+      verdict:
+        'A 7.1% conversion hit rate. Your group follow-through would fail Seed round pitch meetings inside 45 seconds.',
+      summary:
+        '14 group plans proposed (Lisbon, Vegas, golf trips, paintball). 100% greeted with fire emojis. 1 trip actually happened: bowling on a rainy Thursday.',
+    },
+    ghostingIndex: {
+      mostLeftOnReadPerson: 'Marcus',
+      unansweredCount: 38,
+      longestSilenceExhibit: {
+        sender: 'Marcus',
+        timestamp: 'Feb 10, 06:21 PM',
+        message: 'I made a Google Sheet with 4 Airbnb options with a pool. Please vote by tonight.',
+        hoursIgnored: 52,
+      },
+      analysis:
+        '52 consecutive hours of complete silence from three functioning adults, interrupted only by Leo sending an Instagram clip of a drift car.',
+    },
+    nightVsDayPersona: {
+      contrasts: [
+        {
+          name: 'Marcus',
+          nightMessage: {
+            timestamp: '01:30 AM',
+            text: 'I honestly just want us to have one trip before everyone starts having kids man',
+            subtext: 'I am terrified our friendship group is slowly dissolving into adulthood.',
+          },
+          dayMessage: {
+            timestamp: '11:45 AM',
+            text: 'Tickets up another $30. Good job boys.',
+            subtext: 'Channeling my fear of growing apart into financial sarcasm.',
+          },
+          analysis:
+            'Marcus uses logistical nagging during the day as a surrogate for how much he actually loves his friends.',
+        },
+      ],
+      overallInsight:
+        'Daytime banter masks deep nostalgia for the time when hanging out required zero calendars and zero deposits.',
+    },
+  },
+};
+
+export const SAMPLE_REPORT_EX_CHECKIN: StoredReport = {
+  id: 'ex-checkin-sample',
+  createdAt: '2026-10-07T15:00:00.000Z',
+  relationshipType: 'Ex 💔',
+  platform: 'imessage',
+  isSample: true,
+  stats: {
+    totalMessages: 2930,
+    totalWords: 34100,
+    totalDays: 210,
+    activeDaysCount: 78,
+    dateRange: 'Aug 10, 2025 – Mar 12, 2026',
+    platform: 'imessage',
+    peakHourLabel: '10 PM – 12 AM',
+    peakDayLabel: 'Sunday',
+    longestSilenceHours: 504.0,
+    avgResponseOverallMinutes: 180,
+    lateNightPercent: 62,
+    participants: [
+      {
+        name: 'Liam',
+        messageCount: 1680,
+        wordCount: 19800,
+        avgLengthWords: 11.8,
+        initiationCount: 42,
+        initiationPercent: 64,
+        avgReplyMinutes: 95,
+        doubleTextCount: 29,
+        topEmojis: [
+          { emoji: '😭', count: 48 },
+          { emoji: '🍜', count: 24 },
+          { emoji: '🎶', count: 18 },
+          { emoji: '☕', count: 15 },
+          { emoji: '🤍', count: 12 },
+        ],
+        questionCount: 142,
+      },
+      {
+        name: 'Chloe',
+        messageCount: 1250,
+        wordCount: 14300,
+        avgLengthWords: 11.4,
+        initiationCount: 24,
+        initiationPercent: 36,
+        avgReplyMinutes: 240,
+        doubleTextCount: 8,
+        topEmojis: [
+          { emoji: '😂', count: 52 },
+          { emoji: '🙄', count: 22 },
+          { emoji: '📦', count: 16 },
+          { emoji: '☀️', count: 14 },
+          { emoji: '🙏', count: 10 },
+        ],
+        questionCount: 65,
+      },
+    ],
+    recordDay: { date: '2026-02-14', count: 88 },
+    longestStreakDays: 12,
+    hourlyDistribution: [
+      { hour: '00:00', count: 310 },
+      { hour: '02:00', count: 90 },
+      { hour: '08:00', count: 40 },
+      { hour: '10:00', count: 120 },
+      { hour: '12:00', count: 210 },
+      { hour: '14:00', count: 250 },
+      { hour: '16:00', count: 280 },
+      { hour: '18:00', count: 340 },
+      { hour: '20:00', count: 520 },
+      { hour: '22:00', count: 770 },
+    ],
+    dayOfWeekDistribution: [
+      { day: 'Mon', count: 240 },
+      { day: 'Tue', count: 220 },
+      { day: 'Wed', count: 290 },
+      { day: 'Thu', count: 310 },
+      { day: 'Fri', count: 380 },
+      { day: 'Sat', count: 420 },
+      { day: 'Sun', count: 1070 },
+    ],
+    monthlyTimeline: [
+      { month: 'Oct 2025', count: 980, avgReplyMinutes: 65 },
+      { month: 'Nov 2025', count: 620, avgReplyMinutes: 110 },
+      { month: 'Dec 2025', count: 480, avgReplyMinutes: 180 },
+      { month: 'Jan 2026', count: 350, avgReplyMinutes: 240 },
+      { month: 'Feb 2026', count: 310, avgReplyMinutes: 260 },
+      { month: 'Mar 2026', count: 190, avgReplyMinutes: 320 },
+    ],
+    heatmapDays: Array.from({ length: 70 }, (_, i) => ({
+      date: `2026-${String(Math.floor(i / 30) + 1).padStart(2, '0')}-${String((i % 30) + 1).padStart(2, '0')}`,
+      dayOfWeek: i % 7,
+      weekIndex: Math.floor(i / 7),
+      count: (i * 29) % 65,
+      level: ((i * 29) % 65) > 45 ? 3 : ((i * 29) % 65) > 20 ? 2 : 1,
+    })),
+    topSharedWords: [
+      { word: 'remember', count: 74, usedBy: 'Liam' },
+      { word: 'menus', count: 38, usedBy: 'Chloe' },
+      { word: 'storage', count: 29, usedBy: 'Liam' },
+      { word: 'moving', count: 25, usedBy: 'Chloe' },
+      { word: 'vinyl', count: 22, usedBy: 'Liam' },
+    ],
+  },
+  report: {
+    headline: 'Nostalgia Breadcrumb Leasing: The 11:58 PM Pho Menu Check-In',
+    subheadline: 'A post-breakup purgatory sustained by retained espresso machines and late-night Khruangbin vinyl records.',
+    overview:
+      'Liam broke up with Chloe to "figure out his career in Chicago," yet texts her every three weeks exclusively on Sunday nights about laminated soup menus and dog breeds. Chloe responds with clear boundaries, yet keeps the thread active to avoid the finality of grief.',
+    characterChapterTitle: 'The Personnel Dossier: Ghosts of Relationships Past',
+    characterProfiles: [
+      {
+        name: 'Liam',
+        funnyTitle: 'Liam — Minister of Retained Kitchen Appliances & 11:58 PM Vinyl Texts ☕',
+        personalitySummary: 'Wants the freedom of single life with the emotional safety net of his ex’s unconditional validation.',
+        signatureMove: 'Mentioning old shared restaurants when lonely on Sunday evening',
+        bestMoment: 'Admitting he still keeps her winter coat safely stored',
+        worstMoment: 'Texting "Weird not talking to you every day" on Valentine’s Day night',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Liam, you chose to terminate the lease on this relationship, yet you continue to squat in Chloe’s notifications:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Listening to that Khruangbin vinyl we bought in Montreal. Weird not talking to you every day.' },
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 2,
+          responseSpeed: 3,
+          vulnerability: 3,
+          doubleTextEnergy: 3,
+          pettyPotential: 3,
+          humorIndex: 4,
+        },
+      },
+      {
+        name: 'Chloe',
+        funnyTitle: 'Chloe — Boundary Negotiator & 4th-Floor Apartment Survivor 📦',
+        personalitySummary: 'Trying her best to heal while navigating unexpected nostalgia landmines dropped into her phone.',
+        signatureMove: 'Calling out the exact hypocrisy of his texts with surgical precision',
+        bestMoment: 'Reminding him that he was the one who asked for space',
+        worstMoment: 'Agreeing to discuss the espresso machine in person',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Chloe, you delivered the single most devastating reality check in the entire archive:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'It makes it really hard for me to move on when you text me nostalgic stuff late at night every three weeks.' },
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 4,
+          responseSpeed: 3,
+          vulnerability: 5,
+          doubleTextEnergy: 1,
+          pettyPotential: 1,
+          humorIndex: 4,
+        },
+      },
+    ],
+    theShift: {
+      period: 'February 15, 2026',
+      headline: 'The Post-Valentine’s Confrontation',
+      analysis:
+        'When Liam dropped late-night sentimental vinyl references on Feb 14th, Chloe officially called out the emotional toll of his intermittent nostalgia drops.',
+      metricChange: 'Sunday late-night texts stopped for 24 days',
+    },
+    vibeTimeline: [
+      { month: 'Oct 2025', temperature: 'Warm ☀️', degrees: 68, summary: 'Polite post-breakup logistics.' },
+      { month: 'Nov 2025', temperature: 'Lukewarm ☁️', degrees: 45, summary: 'Occasional pet updates.' },
+      { month: 'Dec 2025', temperature: 'Freezing ❄️', degrees: 30, summary: 'Holiday radio silence.' },
+      { month: 'Jan 2026', temperature: 'Volatile ⚡', degrees: 65, summary: 'Pho restaurant reopening ping.' },
+      { month: 'Feb 2026', temperature: 'Boiling 🔥', degrees: 82, summary: 'Valentine vinyl standoff and boundary speech.' },
+    ],
+    loveLanguages: {
+      breakdown: [
+        {
+          name: 'Liam',
+          primaryLanguage: 'Nostalgic Shared Memories',
+          secondaryLanguage: 'Physical Presence (Coffee proposals)',
+          expressionScore: 70,
+          notes: 'Reaches out when feeling disconnected from his own identity.',
+        },
+        {
+          name: 'Chloe',
+          primaryLanguage: 'Clean Space & Consistency',
+          secondaryLanguage: 'Honest Truth',
+          expressionScore: 85,
+          notes: 'Wants either full commitment or complete peace.',
+        },
+      ],
+      mismatchAnalysis: 'Liam wants a gentle ghost; Chloe wants a clean break.',
+    },
+    theUnsaidThings: {
+      subtextAnalysis: 'The espresso machine is not about coffee; it is the final tether to her life.',
+      unspokenThoughts: [
+        {
+          person: 'Liam',
+          whatTheyTexted: 'I have two boxes of your winter coats and your espresso machine',
+          whatTheyActuallyFelt: 'If I give you back these boxes, I have no legitimate reason to ever see you again.',
+        },
+        {
+          person: 'Chloe',
+          whatTheyTexted: 'I can drop by Saturday?',
+          whatTheyActuallyFelt: 'Please just leave them with the building super so I do not have to look at you.',
+        },
+      ],
+    },
+    whoCaresMore: {
+      personA: 'Liam (Initiation)',
+      personAPercent: 64,
+      personB: 'Chloe (Boundaries)',
+      personBPercent: 36,
+      evidence: [
+        'Liam initiates 64% of threads.',
+        'Liam sends 85% of his texts after 9:30 PM on Sundays.',
+        'Chloe sets the emotional terms and demands space.',
+      ],
+      verdict: 'Liam misses having someone who knows him; Chloe is doing the hard work of healing.',
+    },
+    conflictReport: {
+      fightPatterns: 'Late-night sentimental outreach followed by daytime boundary defense.',
+      whoInstigates: 'Liam with nostalgia triggers.',
+      whoDeEscalates: 'Chloe by stating her needs clearly.',
+      conflictResolutionStyle: 'Acknowledge, set distance, silence for 3 weeks.',
+    },
+    flags: {
+      greenFlags: ['Deep mutual respect.', 'Honest communication when confronted.'],
+      redFlags: ['Using past memories as emotional pacifiers.', 'Delayed exchange of belongings.'],
+    },
+    emojiAutopsy: {
+      overallRead: 'A heavy Sunday-night nostalgia footprint.',
+      items: [
+        { emoji: '😭', count: 48, userReads: 'Deflecting painful memories into humor.', trendOverTime: 'Constant.' },
+        { emoji: '🍜', count: 24, userReads: 'Pho restaurant inside joke.', trendOverTime: 'Spikes in January.' },
+      ],
+    },
+    hotTakes: [
+      'He does not miss the relationship; he misses Sunday nights without loneliness.',
+      'That espresso machine has been packed in that box since September.',
+      'Never accept a coffee invite from an ex holding your winter coat hostage.',
+    ],
+    attachmentStyles: [
+      { name: 'Liam', style: 'Dismissive Avoidant 🛡️', evidence: 'Leaves to pursue autonomy, circles back when lonely.', textingBehavior: 'Late-night nostalgic pings.' },
+      { name: 'Chloe', style: 'Secure ⚓', evidence: 'Directly articulates emotional boundaries without cruelty.', textingBehavior: 'Measured daylight responses.' },
+    ],
+    iconicMoment: {
+      quoteSnippet: 'Chloe: "It makes it really hard for me to move on when you text me nostalgic stuff late at night every three weeks."',
+      context: 'The definitive boundary drawn on February 15.',
+      whyItMatters: 'The moment the situationship breadcrumbing was rendered powerless.',
+    },
+    compatibility: {
+      overallScore: 54,
+      dimensions: [
+        { dimension: 'History & Chemistry', score: 88 },
+        { dimension: 'Timing & Life Goals', score: 28 },
+        { dimension: 'Communication Hygiene', score: 48 },
+        { dimension: 'Closure Execution', score: 32 },
+        { dimension: 'Healing Respect', score: 62 },
+      ],
+      summary: 'Past partners whose story has ended, but whose closure is still being actively negotiated.',
+    },
+    playlist: [
+      { title: 'Texas Sun', artist: 'Leon Bridges & Khruangbin', reason: 'For the Montreal vinyl memories.' },
+      { title: 'Somebody That I Used to Know', artist: 'Gotye', reason: 'For the transition from best friend to stranger.' },
+      { title: 'Motion Sickness', artist: 'Phoebe Bridgers', reason: 'For the emotional whiplash of 3-week check-ins.' },
+      { title: 'The Night We Met', artist: 'Lord Huron', reason: 'For Sunday midnight regret.' },
+      { title: 'Happier', artist: 'Olivia Rodrigo', reason: 'For the eventual clean release.' },
+    ],
+    movie: {
+      genre: 'Autumnal Post-Breakup Drama',
+      tagline: 'When is a breakup actually finished?',
+      casting: [
+        { person: 'Chloe', actor: 'Florence Pugh', roleDescription: 'The architect who wants her apartment and life back.' },
+        { person: 'Liam', actor: 'Nicholas Hoult', roleDescription: 'The well-meaning ex who cannot let go of the keys.' },
+      ],
+      plotEnding: 'Liam drops the boxes with her building doorman on a sunny Tuesday. Chloe brews coffee, unpacks her coats, and doesn’t text.',
+    },
+    awards: [
+      { recipient: 'Chloe', title: 'The Boundary Queen 👑', reason: 'For calling out late-night nostalgic breadcrumbs.' },
+      { recipient: 'Liam', title: 'The Espresso Hostage Negotiator ☕', reason: 'For holding coffee equipment for seven consecutive months.' },
+    ],
+    verdict: 'Have him courier the boxes or leave them with the building concierge. Do not sit down for coffee. Closure is what you give yourself, not what an ex hands you over cold brew.',
+    whatToDoNext: [
+      'Arrange an indirect handoff for the remaining boxes (doorman or friend).',
+      'Mute or archive the thread for 90 days after the belongings are returned.',
+      'Treat the Pho restaurant as your place now—order #14 with zero hesitation.',
+    ],
+    planConversionFunnel: {
+      hangoutsProposed: 8,
+      initialEnthusiasmPercent: 37,
+      dateBudgetAgreedPercent: 12,
+      actuallyOccurredPercent: 0,
+      actuallyOccurredCount: 0,
+      verdict:
+        'A 0.0% conversion rate. You are both emotionally smart enough to propose coffee and wise enough to never actually meet.',
+      summary:
+        '8 tentative coffee or "drop off" meetups proposed over 7 months. Zero have occurred. The espresso machine remains in storage.',
+    },
+    ghostingIndex: {
+      mostLeftOnReadPerson: 'Liam',
+      unansweredCount: 16,
+      longestSilenceExhibit: {
+        sender: 'Liam',
+        timestamp: 'Dec 24, 11:15 PM',
+        message: 'Merry Christmas Chloe, thinking of you and hoping your family is good 🤍',
+        hoursIgnored: 504,
+      },
+      analysis:
+        'A full 21 days (504 hours) of silence from Chloe over the holidays, demonstrating pristine detachment discipline.',
+    },
+    nightVsDayPersona: {
+      contrasts: [
+        {
+          name: 'Liam',
+          nightMessage: {
+            timestamp: '11:58 PM',
+            text: 'Weird not talking to you every day.',
+            subtext: 'I am alone on my couch and seeking instant comfort from the past.',
+          },
+          dayMessage: {
+            timestamp: '05:15 PM',
+            text: 'I can drop by Saturday? Maybe we could grab a quick coffee, no pressure.',
+            subtext: 'Attempting to disguise late-night emotional weakness as polite daytime logistics.',
+          },
+          analysis:
+            'Nighttime Liam is mournful and sentimental; daytime Liam pretends he is merely returning winter coats like a professional courier.',
+        },
+      ],
+      overallInsight:
+        'Late-night texts are attempts to reopen closed doors; daytime messages are polite apologies for trying.',
+    },
+  },
+};
+
+export const ALL_SAMPLE_REPORTS: Record<string, StoredReport> = {
+  'maya-julian-sample': PREBUILT_SAMPLE_REPORT,
+  'boys-group-sample': SAMPLE_REPORT_BOYS_GROUP,
+  'ex-checkin-sample': SAMPLE_REPORT_EX_CHECKIN,
+};
+

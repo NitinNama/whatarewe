@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Lock, ArrowRight, ArrowLeft, Check, AlertCircle, Phone, UserCheck, Sparkles, Edit3 } from 'lucide-react';
+import JSZip from 'jszip';
 import indusAvatar from '../assets/images/avatar_indus_friend_1791121741937.jpg';
 import { RelationshipType, StoredReport } from '../types';
 import { parseChatExport } from '../utils/chatParser';
@@ -114,16 +115,38 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
   const handleFileSelection = async (file: File) => {
     setErrorMsg(null);
-    if (!file.name.endsWith('.txt') && !file.type.includes('text')) {
-      setErrorMsg('Please upload a .txt chat export file (or load one of the instant sample exports below).');
-      return;
-    }
-    const text = await file.text();
-    setFileName(file.name);
-    setRawText(text);
+    try {
+      if (file.name.endsWith('.zip') || file.type.includes('zip')) {
+        const jszip = new JSZip();
+        const zip = await jszip.loadAsync(await file.arrayBuffer());
+        const txtKey = Object.keys(zip.files).find(
+          (k) => k.toLowerCase().endsWith('.txt') && !k.startsWith('__MACOSX') && !k.startsWith('.')
+        );
+        if (!txtKey) {
+          setErrorMsg('No .txt chat transcript found inside the ZIP archive. Please export as text.');
+          return;
+        }
+        const text = await zip.files[txtKey].async('text');
+        setFileName(`${file.name} (${txtKey})`);
+        setRawText(text);
+        const contacts = extractParticipants(text, platform);
+        setDetectedContacts(contacts);
+        return;
+      }
 
-    const contacts = extractParticipants(text, platform);
-    setDetectedContacts(contacts);
+      if (!file.name.endsWith('.txt') && !file.type.includes('text')) {
+        setErrorMsg('Please upload a .txt or .zip chat export file (or load one of the instant sample chats).');
+        return;
+      }
+      const text = await file.text();
+      setFileName(file.name);
+      setRawText(text);
+
+      const contacts = extractParticipants(text, platform);
+      setDetectedContacts(contacts);
+    } catch (err: any) {
+      setErrorMsg('Failed to read file: ' + (err.message || 'Unknown format'));
+    }
   };
 
   const handleLoadSample = (key: 'situationship' | 'ex' | 'groupchat') => {
@@ -552,7 +575,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".txt,text/plain"
+                accept=".txt,.zip,text/plain,application/zip,application/x-zip-compressed"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
@@ -572,10 +595,10 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
               ) : (
                 <div>
                   <p className="text-sm font-semibold text-zinc-900">
-                    Click to upload or drag & drop your `.txt` file
+                    Click to upload or drag & drop your `.txt` or `.zip` file
                   </p>
                   <p className="text-xs text-zinc-500 mt-1">
-                    Supports WhatsApp & iMessage `.txt` exports up to 15MB
+                    Supports WhatsApp `.txt` or `.zip` (with `_chat.txt`) and iMessage exports up to 15MB
                   </p>
                 </div>
               )}

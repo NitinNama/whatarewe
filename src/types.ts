@@ -211,6 +211,46 @@ export interface AwardItem {
   reason: string;
 }
 
+export interface PlanConversionFunnel {
+  hangoutsProposed: number;
+  initialEnthusiasmPercent: number;
+  dateBudgetAgreedPercent: number;
+  actuallyOccurredPercent: number;
+  actuallyOccurredCount: number;
+  verdict: string;
+  summary: string;
+}
+
+export interface GhostingIndex {
+  mostLeftOnReadPerson: string;
+  unansweredCount: number;
+  longestSilenceExhibit: {
+    sender: string;
+    timestamp: string;
+    message: string;
+    hoursIgnored: number;
+  };
+  analysis: string;
+}
+
+export interface NightVsDayPersona {
+  contrasts: {
+    name: string;
+    nightMessage: {
+      timestamp: string;
+      text: string;
+      subtext: string;
+    };
+    dayMessage: {
+      timestamp: string;
+      text: string;
+      subtext: string;
+    };
+    analysis: string;
+  }[];
+  overallInsight: string;
+}
+
 export interface IndusReportContent {
   headline: string;
   subheadline: string;
@@ -239,6 +279,9 @@ export interface IndusReportContent {
   awards: AwardItem[];
   verdict: string;
   whatToDoNext: string[];
+  planConversionFunnel?: PlanConversionFunnel;
+  ghostingIndex?: GhostingIndex;
+  nightVsDayPersona?: NightVsDayPersona;
 }
 
 export interface StoredReport {
