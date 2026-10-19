@@ -5,11 +5,13 @@ import { PARTICIPANT_COLORS, calculateNormalizedPercentages } from '../utils/cha
 interface VoiceAndInitiationCardsProps {
   participants?: SenderStats[];
   totalMessages?: number;
+  isPhoneFrame?: boolean;
 }
 
 export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = ({
   participants,
   totalMessages,
+  isPhoneFrame = false,
 }) => {
   // Ensure every participant is present, with safe fallbacks for empty states
   const validParticipants = useMemo(() => {
@@ -116,11 +118,11 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
   let donutAccumulatedOffset = 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 avoid-break w-full">
+    <div className={`grid grid-cols-1 ${isPhoneFrame ? '' : 'md:grid-cols-2'} gap-6 avoid-break w-full`}>
       {/* ======================================================== */}
       {/* CARD 1 — "Share of voice" (Message Distribution)        */}
       {/* ======================================================== */}
-      <div className="bg-[#EAE6F8] rounded-3xl p-7 flex flex-col justify-between border border-purple-200/60 shadow-xs">
+      <div className="bg-[#EAE6F8] rounded-3xl p-6 sm:p-7 flex flex-col justify-between border border-[#d8b4fe] shadow-xs">
         <div>
           <span className="text-xs font-mono text-purple-800 uppercase tracking-wider font-semibold">
             Message Distribution
@@ -133,10 +135,10 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
           </p>
         </div>
 
-        {/* 2-column layout: Left = Custom SVG Donut Chart, Right = Ranked legend list */}
-        <div className="my-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          {/* Left: Custom SVG Donut Chart with EVERY participant */}
-          <div className="relative w-44 h-44 sm:w-48 sm:h-48 shrink-0 flex items-center justify-center">
+        {/* Stacked layout: Top = Centered Donut Chart, Bottom = Full-width ranked legend rows */}
+        <div className="my-6 flex flex-col items-center justify-center gap-6 w-full">
+          {/* Top/Center: Custom SVG Donut Chart with EVERY participant */}
+          <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               {/* Subtle background track */}
               <circle
@@ -180,7 +182,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
                 Leader
               </span>
               <span
-                className="text-lg sm:text-xl font-bold font-mono text-zinc-900 truncate max-w-[110px] px-1"
+                className="text-base font-bold font-mono text-zinc-900 truncate max-w-[85px] px-1"
                 title={messageLeader.name}
               >
                 {messageLeader.name}
@@ -194,26 +196,27 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
             </div>
           </div>
 
-          {/* Right: Ranked legend list with color dot for ALL participants */}
-          <div className="flex-1 w-full flex flex-col justify-center space-y-2">
+          {/* Bottom: Ranked legend list with color dot for ALL participants */}
+          <div className="w-full flex flex-col gap-2.5">
             {messageDistributionData.map((p) => (
               <div
                 key={p.name}
-                className="flex items-center justify-between text-xs font-mono tabular-nums p-2.5 rounded-xl bg-white/70 border border-purple-200/60 shadow-2xs hover:bg-white transition-colors"
+                className="w-full flex items-center justify-between gap-3 text-xs font-mono tabular-nums px-3 py-2.5 rounded-xl bg-white border border-[#e9d5ff] shadow-2xs hover:bg-white transition-colors box-border"
+                style={{ minHeight: '44px' }}
               >
-                <div className="flex items-center gap-2 min-w-0 pr-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: p.color }}
                     aria-hidden="true"
                   />
-                  <span className="font-semibold text-zinc-900 truncate" title={p.name}>
-                    <span className="text-zinc-500 font-normal">#{p.rank} </span>
+                  <span className="text-zinc-500 font-normal shrink-0">#{p.rank}</span>
+                  <span className="font-semibold text-zinc-900 truncate min-w-0" title={p.name}>
                     {p.name}
                   </span>
                 </div>
-                <div className="shrink-0 text-right whitespace-nowrap">
-                  <span className="font-bold text-zinc-900">{p.percentage}%</span>{' '}
+                <div className="shrink-0 text-right whitespace-nowrap pl-2 flex items-baseline justify-end gap-1.5 font-mono">
+                  <span className="font-bold text-zinc-900">{p.percentage}%</span>
                   <span className="text-zinc-500 text-[11px]">
                     ({p.messageCount.toLocaleString()} msgs)
                   </span>
@@ -224,7 +227,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
         </div>
 
         {/* Statistical Integrity Stamp */}
-        <div className="pt-3 border-t border-purple-200/50 flex items-center justify-between text-[11px] font-mono text-purple-900/80">
+        <div className="pt-3 border-t border-[#d8b4fe] flex items-center justify-between text-[11px] font-mono text-purple-900/80">
           <span>Σ Share of Voice = 100%</span>
           <span>
             {messageDistributionData.length} participant
@@ -236,7 +239,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
       {/* ======================================================== */}
       {/* CARD 2 — "Who starts the conversation" (Conversation Starters) */}
       {/* ======================================================== */}
-      <div className="bg-[#E6F4EA] rounded-3xl p-7 flex flex-col justify-between border border-emerald-200/60 shadow-xs">
+      <div className="bg-[#E6F4EA] rounded-3xl p-7 flex flex-col justify-between border border-[#a7f3d0] shadow-xs">
         <div>
           <span className="text-xs font-mono text-emerald-800 uppercase tracking-wider font-semibold">
             Conversation Starters
@@ -267,7 +270,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
               </div>
 
               {/* Horizontal pill progress bar with their unique color */}
-              <div className="flex-1 h-3.5 bg-emerald-200/60 rounded-full overflow-hidden p-0.5">
+              <div className="flex-1 h-3.5 bg-[#a7f3d0] rounded-full overflow-hidden p-0.5">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -291,7 +294,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
         </div>
 
         {/* Callout: Brandon's note highlighting who initiates the most conversations */}
-        <div className="p-3.5 bg-white/70 rounded-xl border border-emerald-200/70 text-xs text-zinc-700">
+        <div className="p-3.5 bg-white rounded-xl border border-[#a7f3d0] text-xs text-zinc-700">
           <span className="font-semibold text-emerald-950">Brandon Note:</span>{' '}
           <span className="font-semibold text-zinc-900">{topInitiator.name}</span> initiates{' '}
           <span className="font-semibold font-mono" style={{ color: topInitiator.color }}>

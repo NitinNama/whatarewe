@@ -83,6 +83,11 @@
     margin: 12mm 12mm 15mm 12mm;
   }
 
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body {
     background-color: #FFFFFF !important;
     color: #000000 !important;
@@ -98,9 +103,26 @@
     display: block !important;
   }
 
-  .avoid-break {
+  /* CSS print media rules: break-inside: avoid; on all cards, sections, and dossiers to prevent awkward card-splitting across pages */
+  .avoid-break,
+  .avoid-page-break,
+  .card,
+  section,
+  article,
+  [class*="rounded-3xl"],
+  [class*="rounded-2xl"],
+  .printable-dossier > div,
+  .printable-dossier section {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  /* Headers must carry break-after: avoid; */
+  h1, h2, h3, h4, h5, h6,
+  .print-header,
+  header {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .page-break-before {
@@ -113,6 +135,25 @@
     max-width: 100% !important;
     padding: 0 !important;
     box-shadow: none !important;
+  }
+
+  /* When printing or exporting to PDF, stack multi-participant cards vertically */
+  .grid-cols-2,
+  .sm\:grid-cols-2,
+  .md\:grid-cols-2,
+  .slide-2-cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+
+  .grid-cols-2 > div,
+  .sm\:grid-cols-2 > div,
+  .md\:grid-cols-2 > div,
+  .slide-2-cards-container > div {
+    width: 100% !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Ensure Analysis Grade Badge prints cleanly with crisp borders and contrast on paper */

@@ -412,7 +412,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
             {/* 6 Trait Score Meters */}
             {person.scores && (
-              <div className="bg-white/80 p-4 rounded-2xl border border-zinc-200/70 my-5 shadow-2xs">
+              <div className="bg-white p-4 rounded-2xl border border-[#e4e4e7] my-5 shadow-2xs">
                 <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-2.5 font-semibold">
                   Behavioral Trait Scores
                 </span>
@@ -457,7 +457,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   return (
                     <div key={blockIdx} className="my-3 flex justify-end avoid-break">
                       {/* WhatsApp Light Green Bubble: #d9f7be, rounded rect, NO triangle tail */}
-                      <div className="max-w-[90%] sm:max-w-[78%] bg-[#d9f7be] text-zinc-900 px-4 py-2.5 rounded-2xl shadow-xs border border-[#b7eb8f]/50 relative">
+                      <div className="max-w-[90%] sm:max-w-[78%] bg-[#d9f7be] text-zinc-900 px-4 py-2.5 rounded-2xl shadow-xs border border-[#b7eb8f] relative">
                         <p className="text-sm font-sans leading-relaxed text-zinc-900 pr-7 whitespace-pre-wrap">
                           {block.bubble.text}
                         </p>
@@ -524,14 +524,14 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
       {/* The Shift ⏳ */}
       {report.theShift && (
-        <div className="bg-[#FEF3C7]/60 rounded-3xl p-7 border border-amber-300/70 shadow-xs space-y-3 avoid-break">
+        <div className="bg-[#fef3c7] rounded-3xl p-7 border border-[#fcd34d] shadow-xs space-y-3 avoid-break">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-amber-900 font-semibold uppercase tracking-wider">THE SHIFT ⏳ (TURNING POINT)</span>
             <span className="text-xs font-mono text-amber-800">{report.theShift.period}</span>
           </div>
           <h3 className="text-2xl font-editorial text-zinc-900 font-semibold">{report.theShift.headline}</h3>
           <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed">{report.theShift.analysis}</p>
-          <div className="inline-block px-3 py-1.5 bg-white/80 rounded-lg border border-amber-300 font-mono text-xs font-semibold text-amber-950">
+          <div className="inline-block px-3 py-1.5 bg-white rounded-lg border border-[#fcd34d] font-mono text-xs font-semibold text-amber-950">
             📊 {report.theShift.metricChange}
           </div>
         </div>
@@ -679,7 +679,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <Flame className="w-4 h-4 text-orange-600" />
               <span className="text-xs font-mono text-orange-900 uppercase tracking-wider font-semibold">HOT TAKES 🌶️</span>
             </div>
-            <span className="text-[11px] font-mono text-orange-800 bg-orange-100/90 border border-orange-300/70 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 w-fit">
+            <span className="text-[11px] font-mono text-orange-800 bg-[#ffedd5] border border-[#fdba74] px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 w-fit">
               <Sparkles className="w-3 h-3 text-orange-600" />
               <span>Click any take to unlock AI Conspiracy Theory 🕵️‍♂️</span>
             </span>
@@ -795,7 +795,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* Green & Red Flags */}
       {report.flags && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 avoid-break">
-          <div className="p-6 rounded-3xl bg-emerald-50/60 border border-emerald-200 shadow-2xs">
+          <div className="p-6 rounded-3xl bg-[#ecfdf5] border border-[#a7f3d0] shadow-2xs">
             <p className="text-xs font-semibold text-emerald-900 mb-3 uppercase tracking-wider">Green Flags 🟢</p>
             <ul className="space-y-2 text-xs text-emerald-950">
               {(report.flags.greenFlags || []).map((f, i) => (
@@ -807,7 +807,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             </ul>
           </div>
 
-          <div className="p-6 rounded-3xl bg-rose-50/60 border border-rose-200 shadow-2xs">
+          <div className="p-6 rounded-3xl bg-[#fff1f2] border border-[#fecdd3] shadow-2xs">
             <p className="text-xs font-semibold text-rose-900 mb-3 uppercase tracking-wider">Red Flags 🚩</p>
             <ul className="space-y-2 text-xs text-rose-950">
               {(report.flags.redFlags || []).map((f, i) => (
@@ -1119,7 +1119,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
       {/* Slide 4 Vocabulary & Emoji Autopsy */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 avoid-break">
-        <div className="bg-[#D1FAE5] rounded-3xl p-7 border border-emerald-300/70 shadow-xs flex flex-col justify-between">
+        <div className="bg-[#D1FAE5] rounded-3xl p-7 border border-[#6ee7b7] shadow-xs flex flex-col justify-between">
           <div>
             <span className="text-xs font-mono text-emerald-900 uppercase font-semibold">SHARED VOCABULARY</span>
             <h2 className="text-2xl font-editorial text-zinc-900 mt-1">Most recurring words</h2>
@@ -1128,7 +1128,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             {(stats.topSharedWords || []).slice(0, 6).map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2.5 bg-white/70 rounded-xl border border-emerald-200/60 font-mono text-xs"
+                className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-[#a7f3d0] font-mono text-xs"
               >
                 <div className="flex items-center gap-2.5">
                   <span className="text-emerald-700 font-bold">#{idx + 1}</span>
@@ -1141,12 +1141,12 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           <p className="text-xs text-emerald-900 italic">Filtered for recurring callbacks & nouns</p>
         </div>
 
-        <div className="bg-[#FEF08A] rounded-3xl p-7 border border-yellow-300/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-[#FEF08A] rounded-3xl p-7 border border-[#fde047] shadow-xs flex flex-col justify-between">
           <div>
             <span className="text-xs font-mono text-yellow-950 uppercase font-semibold">EMOJI AUTOPSY</span>
             <h2 className="text-2xl font-editorial text-zinc-900 mt-1">Emotional punctuation</h2>
           </div>
-          <div className="my-6 flex items-center justify-around p-4 bg-white/80 rounded-2xl border border-yellow-300/60">
+          <div className="my-6 flex items-center justify-around p-4 bg-white rounded-2xl border border-[#fde047]">
             {((p1.topEmojis || []).slice(0, 2)).concat((p2.topEmojis || []).slice(0, 2)).map((e, idx) => (
               <div key={idx} className="flex flex-col items-center">
                 <span className="text-4xl sm:text-5xl">{e.emoji}</span>
@@ -1154,7 +1154,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               </div>
             ))}
           </div>
-          <div className="p-4 bg-white/80 rounded-xl border border-yellow-300/60 text-xs text-zinc-800 leading-relaxed">
+          <div className="p-4 bg-white rounded-xl border border-[#fde047] text-xs text-zinc-800 leading-relaxed">
             <span className="font-semibold text-zinc-900">Read:</span> {report.emojiAutopsy?.overallRead || 'Buffer emojis to cushion direct questions.'}
           </div>
         </div>
@@ -1510,6 +1510,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 <VoiceAndInitiationCards
                   participants={stats.participants}
                   totalMessages={stats.totalMessages}
+                  isPhoneFrame={phoneFrameMode}
                 />
               </div>
             )}

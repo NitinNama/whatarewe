@@ -8,10 +8,89 @@ export interface PdfExportOptions {
   onProgress?: (progress: number, stage: string) => void;
 }
 
+function oklchToRgb(L: number, C: number, H: number, alpha = 1): string {
+  const hRad = (H * Math.PI) / 180;
+  const a = C * Math.cos(hRad);
+  const b = C * Math.sin(hRad);
+
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.291485548 * b;
+
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+
+  const rLinear = +4.0767434772 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const gLinear = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const bLinear = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+
+  function toSRGB(c: number): number {
+    const clamped = Math.max(0, Math.min(1, c));
+    return clamped <= 0.0031308
+      ? 12.92 * clamped
+      : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
+  }
+
+  const r = Math.round(toSRGB(rLinear) * 255);
+  const g = Math.round(toSRGB(gLinear) * 255);
+  const bVal = Math.round(toSRGB(bLinear) * 255);
+
+  const safeAlpha = Math.max(0, Math.min(1, alpha));
+  if (safeAlpha < 1) {
+    return `rgba(${r}, ${g}, ${bVal}, ${safeAlpha.toFixed(2)})`;
+  }
+  return `rgb(${r}, ${g}, ${bVal})`;
+}
+
+function parseRgbOrHex(s: string): [number, number, number, number] | null {
+  if (!s) return null;
+  const str = s.trim();
+  if (str === 'transparent') return [0, 0, 0, 0];
+  if (str === 'white') return [255, 255, 255, 1];
+  if (str === 'black') return [0, 0, 0, 1];
+
+  const rgbaM = str.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/i);
+  if (rgbaM) {
+    const r = parseInt(rgbaM[1], 10);
+    const g = parseInt(rgbaM[2], 10);
+    const b = parseInt(rgbaM[3], 10);
+    let a = 1;
+    if (rgbaM[4]) {
+      a = rgbaM[4].endsWith('%') ? parseFloat(rgbaM[4]) / 100 : parseFloat(rgbaM[4]);
+    }
+    return [r, g, b, a];
+  }
+
+  if (str.startsWith('#')) {
+    let hex = str.slice(1);
+    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    if (hex.length === 4) hex = hex.split('').map((c) => c + c).join('');
+    if (hex.length === 6) {
+      return [
+        parseInt(hex.slice(0, 2), 16),
+        parseInt(hex.slice(2, 4), 16),
+        parseInt(hex.slice(4, 6), 16),
+        1,
+      ];
+    }
+    if (hex.length === 8) {
+      return [
+        parseInt(hex.slice(0, 2), 16),
+        parseInt(hex.slice(2, 4), 16),
+        parseInt(hex.slice(4, 6), 16),
+        parseInt(hex.slice(6, 8), 16) / 255,
+      ];
+    }
+  }
+
+  return null;
+}
+
 /**
- * Robust canvas color converter that converts modern CSS color formats
+ * Robust color converter that converts modern CSS color formats
  * (oklch, lab, oklab, lch, color-mix) to standard hex or rgb/rgba values using
- * the browser's 2D canvas context.
+ * mathematical color-space conversion and canvas fallback.
  */
 function createColorConverter() {
   const dummyCanvas = document.createElement('canvas');
@@ -19,16 +98,130 @@ function createColorConverter() {
   dummyCanvas.height = 1;
   const ctx = dummyCanvas.getContext('2d');
 
-  function resolveSingleColor(colorStr: string): string {
-    if (!ctx) return '#27272a';
-    try {
-      ctx.fillStyle = '#27272a';
-      ctx.fillStyle = colorStr.trim();
-      const resolved = ctx.fillStyle;
-      return resolved || '#27272a';
-    } catch {
-      return '#27272a';
+  function resolveColorMix(colorStr: string): string {
+    const trans1 = colorStr.match(
+      /color-mix\s*\(\s*in\s+[\w-]+\s*,\s*(.+?)\s+(\d+(?:\.\d+)?)%\s*,\s*transparent(?:\s+\d+%?)?\s*\)/i
+    );
+    if (trans1) {
+      const baseColor = resolveSingleColor(trans1[1]);
+      const alpha = parseFloat(trans1[2]) / 100;
+      const parsed = parseRgbOrHex(baseColor);
+      if (parsed) {
+        return `rgba(${parsed[0]}, ${parsed[1]}, ${parsed[2]}, ${(parsed[3] * alpha).toFixed(2)})`;
+      }
+      return baseColor;
     }
+
+    const trans2 = colorStr.match(
+      /color-mix\s*\(\s*in\s+[\w-]+\s*,\s*transparent(?:\s+(\d+(?:\.\d+)?)%)?\s*,\s*(.+?)(?:\s+(\d+(?:\.\d+)?)%)?\s*\)/i
+    );
+    if (trans2) {
+      const baseColor = resolveSingleColor(trans2[2]);
+      const alpha = trans2[3]
+        ? parseFloat(trans2[3]) / 100
+        : trans2[1]
+        ? 1 - parseFloat(trans2[1]) / 100
+        : 1;
+      const parsed = parseRgbOrHex(baseColor);
+      if (parsed) {
+        return `rgba(${parsed[0]}, ${parsed[1]}, ${parsed[2]}, ${(parsed[3] * alpha).toFixed(2)})`;
+      }
+      return baseColor;
+    }
+
+    const generalMix = colorStr.match(
+      /color-mix\s*\(\s*in\s+[\w-]+\s*,\s*(.+?)(?:\s+(\d+(?:\.\d+)?)%)?\s*,\s*(.+?)(?:\s+(\d+(?:\.\d+)?)%)?\s*\)/i
+    );
+    if (generalMix) {
+      const c1 = resolveSingleColor(generalMix[1]);
+      const c2 = resolveSingleColor(generalMix[3]);
+      const p1 = generalMix[2]
+        ? parseFloat(generalMix[2]) / 100
+        : generalMix[4]
+        ? 1 - parseFloat(generalMix[4]) / 100
+        : 0.5;
+      const rgb1 = parseRgbOrHex(c1);
+      const rgb2 = parseRgbOrHex(c2);
+      if (rgb1 && rgb2) {
+        const r = Math.round(rgb1[0] * p1 + rgb2[0] * (1 - p1));
+        const g = Math.round(rgb1[1] * p1 + rgb2[1] * (1 - p1));
+        const b = Math.round(rgb1[2] * p1 + rgb2[2] * (1 - p1));
+        const a = (rgb1[3] * p1 + rgb2[3] * (1 - p1)).toFixed(2);
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+      }
+      return c1;
+    }
+
+    return colorStr;
+  }
+
+  function resolveSingleColor(colorStr: string): string {
+    if (!colorStr || typeof colorStr !== 'string') return colorStr;
+    const s = colorStr.trim();
+
+    if (s === 'transparent') return 'rgba(0, 0, 0, 0)';
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s;
+    if (/^rgba?\(/i.test(s) && !/(oklch|oklab|color-mix|lab|lch)/i.test(s)) return s;
+
+    // 1. color-mix
+    if (/color-mix\s*\(/i.test(s)) {
+      return resolveColorMix(s);
+    }
+
+    // 2. oklch(L C H [/ alpha])
+    if (/oklch\s*\(/i.test(s)) {
+      const m = s.match(
+        /oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/i
+      );
+      if (m) {
+        const L = m[1].endsWith('%') ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
+        const C = parseFloat(m[2]);
+        const H = parseFloat(m[3]);
+        const alpha = m[4]
+          ? m[4].endsWith('%')
+            ? parseFloat(m[4]) / 100
+            : parseFloat(m[4])
+          : 1;
+        return oklchToRgb(L, C, H, alpha);
+      }
+    }
+
+    // 3. oklab(L a b [/ alpha])
+    if (/oklab\s*\(/i.test(s)) {
+      const m = s.match(
+        /oklab\(\s*([\d.]+%?)\s+([-\d.]+)\s+([-\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/i
+      );
+      if (m) {
+        const L = m[1].endsWith('%') ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
+        const a = parseFloat(m[2]);
+        const b = parseFloat(m[3]);
+        const alpha = m[4]
+          ? m[4].endsWith('%')
+            ? parseFloat(m[4]) / 100
+            : parseFloat(m[4])
+          : 1;
+        const C = Math.sqrt(a * a + b * b);
+        const H = (Math.atan2(b, a) * 180) / Math.PI;
+        return oklchToRgb(L, C, H < 0 ? H + 360 : H, alpha);
+      }
+    }
+
+    // 4. Try native Canvas 2D resolver if supported by current browser
+    if (ctx) {
+      try {
+        ctx.fillStyle = 'rgba(1, 2, 3, 0.4)';
+        ctx.fillStyle = s;
+        if (ctx.fillStyle !== 'rgba(1, 2, 3, 0.4)' && ctx.fillStyle !== '#010203') {
+          return ctx.fillStyle;
+        }
+      } catch {}
+    }
+
+    // 5. Clean, safe light fallbacks (NEVER pitch black #27272a!)
+    if (/white/i.test(s)) return 'rgba(255, 255, 255, 0.9)';
+    if (/transparent/i.test(s)) return 'rgba(0, 0, 0, 0)';
+
+    return 'rgba(255, 255, 255, 0.9)';
   }
 
   return function convertColor(rawString: string): string {
@@ -37,33 +230,34 @@ function createColorConverter() {
       return rawString;
     }
 
-    // Match nested parenthesis color expressions accurately
-    // Handles expressions like: oklch(0.7 0.15 150) or color-mix(in oklab, oklch(...) 50%, white)
-    const regex = /(?:oklch|oklab|color-mix|lab|lch)\s*\(/gi;
-    let result = '';
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
+    let current = rawString;
+    let iterations = 0;
+    while (/(?:oklch|oklab|color-mix|lab|lch)\s*\(/i.test(current) && iterations < 8) {
+      iterations++;
+      // Resolve innermost color functions first
+      const regex = /(?:oklch|oklab|color-mix|lab|lch)\s*\(/gi;
+      let match: RegExpExecArray | null;
+      let lastMatch: RegExpExecArray | null = null;
+      while ((match = regex.exec(current)) !== null) {
+        lastMatch = match;
+      }
+      if (!lastMatch) break;
 
-    while ((match = regex.exec(rawString)) !== null) {
-      const startIndex = match.index;
-      result += rawString.slice(lastIndex, startIndex);
-
+      const startIndex = lastMatch.index;
       let depth = 1;
-      let i = regex.lastIndex;
-      while (i < rawString.length && depth > 0) {
-        if (rawString[i] === '(') depth++;
-        else if (rawString[i] === ')') depth--;
+      let i = startIndex + lastMatch[0].length;
+      while (i < current.length && depth > 0) {
+        if (current[i] === '(') depth++;
+        else if (current[i] === ')') depth--;
         i++;
       }
 
-      const fullColorFunc = rawString.slice(startIndex, i);
-      result += resolveSingleColor(fullColorFunc);
-      lastIndex = i;
-      regex.lastIndex = i;
+      const fullColorFunc = current.slice(startIndex, i);
+      const resolved = resolveSingleColor(fullColorFunc);
+      current = current.slice(0, startIndex) + resolved + current.slice(i);
     }
 
-    result += rawString.slice(lastIndex);
-    return result;
+    return current;
   };
 }
 
