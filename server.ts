@@ -322,7 +322,7 @@ const REPORT_RESPONSE_SCHEMA = {
           },
           required: ['sender', 'timestamp', 'message', 'hoursIgnored'],
         },
-        analysis: { type: Type.STRING, description: 'Brandon autopsy on how silences end' },
+        analysis: { type: Type.STRING, description: 'Indus autopsy on how silences end' },
       },
       required: ['mostLeftOnReadPerson', 'unansweredCount', 'longestSilenceExhibit', 'analysis'],
     },
@@ -694,7 +694,7 @@ app.post('/api/analyze', async (req, res) => {
 
   sendEvent('status', { message: 'Cross-referencing your 2am texts with your 10am energy.' });
 
-  const systemPrompt = `You are Whatarewe (channeling the voice of "Brandon") — a world-class, emotionally intelligent relationship analyst and observant friend who has just scrutinized every message in this chat export.
+  const systemPrompt = `You are Whatarewe (channeling the voice of "Indus") — a world-class, emotionally intelligent relationship analyst and observant friend who has just scrutinized every message in this chat export.
 
 ### 🎯 CORE VOICE RULES
 1. SECOND PERSON POV: Speak directly TO the participants by name ("Maya, you treat this conversation like an open tab...", "Julian, your entire scheduling strategy is...").
@@ -836,7 +836,7 @@ app.post('/api/chat-followup', async (req, res) => {
       return;
     }
 
-    const systemInstruction = `You are Indus (the honest, warm, emotionally intelligent friend with the "Brandon" voice). You already analyzed this user's ${stored.relationshipType} chat and wrote this report:
+    const systemInstruction = `You are Indus (the honest, warm, emotionally intelligent friend). You already analyzed this user's ${stored.relationshipType} chat and wrote this report:
 ${JSON.stringify(stored.report)}
 Stats: ${JSON.stringify(stored.stats)}
 
@@ -931,7 +931,7 @@ app.post('/api/hot-take-deep-dive', async (req, res) => {
       return;
     }
 
-    const systemInstruction = `You are Whatarewe (the signature voice of "Brandon" — the razor-sharp, emotionally brilliant friend who analyzes chats like a CIA profiler).
+    const systemInstruction = `You are Whatarewe (the signature voice of "Indus" — the razor-sharp, emotionally brilliant friend who analyzes chats like a CIA profiler).
 You are expanding on a spicy Hot Take from a relationship analysis report.
 
 Context of this chat:

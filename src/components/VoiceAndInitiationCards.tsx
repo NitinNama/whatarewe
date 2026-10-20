@@ -293,9 +293,9 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
           ))}
         </div>
 
-        {/* Callout: Brandon's note highlighting who initiates the most conversations */}
+        {/* Callout: Indus's note highlighting who initiates the most conversations */}
         <div className="p-3.5 bg-white rounded-xl border border-[#a7f3d0] text-xs text-zinc-700">
-          <span className="font-semibold text-emerald-950">Brandon Note:</span>{' '}
+          <span className="font-semibold text-emerald-950">Indus Note:</span>{' '}
           <span className="font-semibold text-zinc-900">{topInitiator.name}</span> initiates{' '}
           <span className="font-semibold font-mono" style={{ color: topInitiator.color }}>
             {topInitiator.initiationPercent}%

@@ -284,7 +284,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
   const handleCopyTheory = () => {
     if (!theoryData) return;
-    const textToCopy = `🌶️ BRANDON'S CONSPIRACY DOSSIER:\n"${selectedHotTake}"\n\n📁 ${theoryData.conspiracyTitle}\n\n${theoryData.theory}\n\nReceipts:\n${theoryData.evidencePoints.map((e) => `• ${e}`).join('\n')}\n\nUncomfortable Truth: ${theoryData.uncomfortableTruth}`;
+    const textToCopy = `🌶️ INDUS'S CONSPIRACY DOSSIER:\n"${selectedHotTake}"\n\n📁 ${theoryData.conspiracyTitle}\n\n${theoryData.theory}\n\nReceipts:\n${theoryData.evidencePoints.map((e) => `• ${e}`).join('\n')}\n\nUncomfortable Truth: ${theoryData.uncomfortableTruth}`;
     navigator.clipboard.writeText(textToCopy);
     setTheoryCopied(true);
     setTimeout(() => setTheoryCopied(false), 2000);
@@ -292,8 +292,8 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
   const handleAskAboutHotTake = (take: string) => {
     setSelectedHotTake(null);
-    setQuestion(`Brandon, what is the real psychology behind this hot take: "${take}"?`);
-    const qaEl = document.getElementById('brandon-qa-section');
+    setQuestion(`Indus, what is the real psychology behind this hot take: "${take}"?`);
+    const qaEl = document.getElementById('indus-qa-section');
     if (qaEl) {
       qaEl.scrollIntoView({ behavior: 'smooth' });
     }
@@ -855,10 +855,10 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* Official Awards 🏆 & Closing Verdict */}
       <div className="bg-zinc-900 text-white rounded-3xl p-8 space-y-6 shadow-md avoid-break">
         <div className="flex items-center gap-3">
-          <img src={indusAvatar} alt="Brandon" className="w-10 h-10 rounded-full border border-white/20" />
+          <img src={indusAvatar} alt="Indus" className="w-10 h-10 rounded-full border border-white/20" />
           <div>
             <p className="text-xs text-zinc-400 uppercase tracking-wider font-mono">FINAL VERDICT</p>
-            <h3 className="text-2xl font-editorial text-white">Brandon’s Closing Word</h3>
+            <h3 className="text-2xl font-editorial text-white">Indus’s Closing Word</h3>
           </div>
         </div>
         <p className="text-sm sm:text-base text-zinc-200 leading-relaxed font-editorial italic">
@@ -875,9 +875,9 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         </div>
       </div>
 
-      {/* Interactive Q&A: Ask Brandon about this chat (hidden in printed PDF) */}
-      <div id="brandon-qa-section" className="bg-white rounded-3xl p-7 border border-zinc-200/80 shadow-xs space-y-4 no-print avoid-break">
-        <h3 className="text-lg font-editorial text-zinc-900">Ask Brandon about this chat</h3>
+      {/* Interactive Q&A: Ask Indus about this chat (hidden in printed PDF) */}
+      <div id="indus-qa-section" className="bg-white rounded-3xl p-7 border border-zinc-200/80 shadow-xs space-y-4 no-print avoid-break">
+        <h3 className="text-lg font-editorial text-zinc-900">Ask Indus about this chat</h3>
         <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
           {qaHistory.map((m, i) => (
             <div
@@ -886,11 +886,11 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 m.role === 'indus' ? 'bg-[#FAF9F6] text-zinc-800 border border-zinc-200/60' : 'bg-zinc-900 text-white ml-auto max-w-sm'
               }`}
             >
-              <p className="text-[10px] font-semibold opacity-60 mb-0.5">{m.role === 'indus' ? 'Brandon' : 'You'}</p>
+              <p className="text-[10px] font-semibold opacity-60 mb-0.5">{m.role === 'indus' ? 'Indus' : 'You'}</p>
               <p>{m.text}</p>
             </div>
           ))}
-          {isAsking && <p className="text-xs text-zinc-400 italic">Brandon is voice-noting a reply...</p>}
+          {isAsking && <p className="text-xs text-zinc-400 italic">Indus is voice-noting a reply...</p>}
         </div>
 
         <form onSubmit={handleAskIndus} className="flex gap-2">
@@ -1160,12 +1160,12 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
         </div>
       </div>
 
-      {/* Slide 5 Brandon Monologue in Dossier */}
+      {/* Slide 5 Indus Monologue in Dossier */}
       <div className="w-full bg-[#FAF8F5] rounded-3xl p-8 sm:p-14 border border-zinc-200 shadow-md text-center max-w-2xl mx-auto avoid-break">
         <div className="w-16 h-16 rounded-full p-1 bg-white border border-zinc-200 mx-auto mb-5 shadow-xs">
-          <img src={indusAvatar} alt="Brandon" className="w-full h-full rounded-full object-cover" />
+          <img src={indusAvatar} alt="Indus" className="w-full h-full rounded-full object-cover" />
         </div>
-        <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">CHAPTER 05 · BRANDON’S MONOLOGUE</span>
+        <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">CHAPTER 05 · INDUS’S MONOLOGUE</span>
         <h2 className="text-3xl sm:text-4xl font-editorial text-zinc-900 mt-3 tracking-tight font-normal">
           {report.headline}
         </h2>
@@ -1393,7 +1393,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 {currentSlide === 1 && 'Talk & Initiation Ratios'}
                 {currentSlide === 2 && 'Cadence & Records'}
                 {currentSlide === 3 && 'Vocabulary & Emojis'}
-                {currentSlide === 4 && 'Brandon’s Monologue'}
+                {currentSlide === 4 && 'Indus’s Monologue'}
                 {currentSlide === 5 && 'The Personnel File'}
                 {currentSlide === 6 && 'Complete Dossier'}
               </span>
@@ -1692,7 +1692,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                       onClick={() => handleSelectSlide(4)}
                       className="mt-4 w-full py-3 bg-zinc-900 text-white rounded-full text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 shadow-xs"
                     >
-                      <span>See Brandon’s Monologue →</span>
+                      <span>See Indus’s Monologue →</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -1707,13 +1707,13 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   <div className="w-16 h-16 rounded-full p-1 bg-white border border-zinc-200 mx-auto mb-5 shadow-xs">
                     <img
                       src={indusAvatar}
-                      alt="Brandon"
+                      alt="Indus"
                       referrerPolicy="no-referrer"
                       className="w-full h-full rounded-full object-cover"
                     />
                   </div>
 
-                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">CHAPTER 05 · BRANDON’S MONOLOGUE</span>
+                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-widest">CHAPTER 05 · INDUS’S MONOLOGUE</span>
 
                   <h1 className="text-3xl sm:text-4xl font-editorial text-zinc-900 mt-3 tracking-tight font-normal">
                     {report.headline}
@@ -1876,7 +1876,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span><strong>Unlimited Follow-Up Q&A</strong> with Brandon</span>
+                  <span><strong>Unlimited Follow-Up Q&A</strong> with Indus</span>
                 </li>
               </ul>
             </div>
@@ -2045,7 +2045,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   <div className="w-16 h-16 rounded-full p-1 bg-white border-2 border-orange-300 shadow-md animate-pulse">
                     <img
                       src={indusAvatar}
-                      alt="Brandon analyzing"
+                      alt="Indus analyzing"
                       className="w-full h-full rounded-full object-cover"
                     />
                   </div>
@@ -2056,7 +2056,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                     Connecting psychological dots...
                   </p>
                   <p className="text-xs text-zinc-500 font-mono">
-                    Brandon is analyzing unread receipts and calculating the exact ratio of plausible deniability...
+                    Indus is analyzing unread receipts and calculating the exact ratio of plausible deniability...
                   </p>
                 </div>
                 <div className="w-48 mx-auto h-1.5 bg-orange-100 rounded-full overflow-hidden">
@@ -2123,7 +2123,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                     className="flex-1 py-2.5 px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Ask Brandon About This</span>
+                    <span>Ask Indus About This</span>
                   </button>
 
                   <button
@@ -2139,7 +2139,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
             {/* Footer Notice */}
             <div className="pt-2 text-[10px] font-mono text-zinc-400 text-center border-t border-orange-100">
-              Generated by Brandon's behavioral model · Grounded in uploaded message timestamps
+              Generated by Indus's behavioral model · Grounded in uploaded message timestamps
             </div>
           </div>
         </div>

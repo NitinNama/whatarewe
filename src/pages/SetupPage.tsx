@@ -369,7 +369,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 Choose your platform & chat dynamic
               </h1>
               <p className="mt-2 text-sm text-zinc-600">
-                Tell Brandon where the messages come from and what dynamic he’s analyzing.
+                Tell Indus where the messages come from and what dynamic he’s analyzing.
               </p>
             </div>
 
@@ -606,7 +606,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
 
             <div className="bg-[#FAF9F6] rounded-xl p-4 border border-zinc-200/80">
               <p className="text-xs font-medium text-zinc-600 mb-2.5">
-                Don’t have a chat export handy right now? Load a realistic transcript to test Brandon immediately:
+                Don’t have a chat export handy right now? Load a realistic transcript to test Indus immediately:
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -688,7 +688,7 @@ export const SetupPage: React.FC<SetupPageProps> = ({ initialRelationshipType, o
                 Confirm & clean participant names
               </h1>
               <p className="mt-2 text-sm text-zinc-600">
-                Brandon writes much sharper commentary when he knows real names or nicknames instead of raw phone numbers (e.g. <span className="font-mono text-xs text-zinc-800">+91 75310 01050</span>).
+                Indus writes much sharper commentary when he knows real names or nicknames instead of raw phone numbers (e.g. <span className="font-mono text-xs text-zinc-800">+91 75310 01050</span>).
               </p>
             </div>
 

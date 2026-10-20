@@ -342,7 +342,7 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
                   <div className="w-9 h-9 rounded-full p-0.5 bg-white/20 border border-white/30 overflow-hidden shadow-xs">
                     <img
                       src={indusAvatar}
-                      alt="Brandon"
+                      alt="Indus"
                       className="w-full h-full rounded-full object-cover"
                     />
                   </div>
@@ -473,7 +473,7 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
             <div className="relative z-10 pt-3 border-t border-black/10 flex items-center justify-between text-[10px] font-mono opacity-80">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Verified by Brandon</span>
+                <span>Verified by Indus</span>
               </div>
               <span className="tracking-wider uppercase font-semibold">whatarewe.app</span>
             </div>

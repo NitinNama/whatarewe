@@ -44,10 +44,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             Privacy Policy
           </button>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/_exomes_?utm_source=qr"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-zinc-900 transition-colors"
+            className="hover:text-zinc-900 transition-colors cursor-pointer"
           >
             Instagram ↗
           </a>

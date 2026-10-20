@@ -8,7 +8,31 @@ interface HeaderProps {
   onNavigate: (path: RoutePath, reportId?: string) => void;
 }
 
+interface Ripple {
+  x: number;
+  y: number;
+  size: number;
+  id: number;
+}
+
 export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
+  const [ripples, setRipples] = React.useState<Ripple[]>([]);
+
+  const handleAnalyzeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2.2;
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    const newRipple: Ripple = { x, y, size, id: Date.now() };
+
+    setRipples((prev) => [...prev, newRipple]);
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
+    }, 600);
+
+    onNavigate('/setup');
+  };
   return (
     <header className="sticky top-0 z-40 w-full bg-[#FAF9F6]/90 backdrop-blur-md border-b border-zinc-200/80 no-print">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -67,16 +91,28 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => onNavigate('/setup')}
-            className="inline-flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-white bg-zinc-900 rounded-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer whitespace-nowrap shrink-0"
+            onClick={handleAnalyzeClick}
+            className="relative overflow-hidden inline-flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-white bg-zinc-900 rounded-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer whitespace-nowrap shrink-0"
           >
             <img
               src={indusAvatar}
               alt="Indus avatar"
               referrerPolicy="no-referrer"
-              className="w-5 h-5 rounded-full object-cover border border-white/20"
+              className="relative z-10 w-5 h-5 rounded-full object-cover border border-white/20"
             />
-            <span>Analyze a Chat</span>
+            <span className="relative z-10">Analyze a Chat</span>
+            {ripples.map((ripple) => (
+              <span
+                key={ripple.id}
+                className="absolute rounded-full bg-white/30 pointer-events-none animate-button-ripple"
+                style={{
+                  left: ripple.x,
+                  top: ripple.y,
+                  width: ripple.size,
+                  height: ripple.size,
+                }}
+              />
+            ))}
           </button>
         </div>
       </div>

@@ -54,7 +54,32 @@ const TESTIMONIALS = [
   },
 ];
 
+interface Ripple {
+  x: number;
+  y: number;
+  size: number;
+  id: number;
+}
+
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelationshipType }) => {
+  const [ripples, setRipples] = React.useState<Ripple[]>([]);
+
+  const handleTryNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2.2;
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    const newRipple: Ripple = { x, y, size, id: Date.now() };
+
+    setRipples((prev) => [...prev, newRipple]);
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
+    }, 600);
+
+    onNavigate('/setup');
+  };
+
   const handleTagClick = (type: RelationshipType) => {
     onSelectRelationshipType(type);
     onNavigate('/setup');
@@ -79,7 +104,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
         </div>
 
         <h1
-          className="text-4xl sm:text-6xl font-editorial font-medium tracking-tight text-zinc-900 leading-[1.08] max-w-2xl mx-auto"
+          className="text-4xl sm:text-6xl font-editorial font-medium tracking-tight text-zinc-900 leading-[1.08] max-w-2xl mx-auto animate-fade-in-up"
           style={{ textWrap: 'balance' }}
         >
           Upload a chat. <span className="italic font-normal text-zinc-700">Whatarewe</span> tells you what’s really going on.
@@ -91,11 +116,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
 
         <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
-            onClick={() => onNavigate('/setup')}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap shadow-sm"
+            onClick={handleTryNowClick}
+            className="relative overflow-hidden w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer whitespace-nowrap shadow-sm"
           >
-            <span>Try It Now</span>
-            <ArrowRight className="w-4 h-4" />
+            <span className="relative z-10">Try It Now</span>
+            <ArrowRight className="relative z-10 w-4 h-4" />
+            {ripples.map((ripple) => (
+              <span
+                key={ripple.id}
+                className="absolute rounded-full bg-white/35 pointer-events-none animate-button-ripple"
+                style={{
+                  left: ripple.x,
+                  top: ripple.y,
+                  width: ripple.size,
+                  height: ripple.size,
+                }}
+              />
+            ))}
           </button>
 
           <button
