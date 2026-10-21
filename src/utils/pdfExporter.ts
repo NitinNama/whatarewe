@@ -359,8 +359,13 @@ export async function generatePdfFromElement({
   clone.style.backgroundColor = '#FAF9F6';
   clone.style.boxShadow = 'none';
   clone.style.transform = 'none';
-  clone.style.margin = '0';
-  clone.style.padding = '24px';
+  clone.style.margin = '0 auto';
+  clone.style.padding = '24px 28px';
+  clone.style.boxSizing = 'border-box';
+
+  // Completely remove interactive and no-print UI elements from the PDF export DOM
+  clone.querySelectorAll('.no-print').forEach((el) => el.remove());
+
   document.body.appendChild(clone);
 
   // Hook window.getComputedStyle during the capture lifecycle so that ANY
@@ -473,17 +478,100 @@ export async function generatePdfFromElement({
       },
     });
 
-    onProgress?.(60, 'Formatting A4 pagination & margins...');
+    onProgress?.(60, 'Calculating smart element-aware page breaks...');
 
     // Standard A4 dimensions in mm: 210mm wide x 297mm high
-    const marginX = 10;
-    const marginTop = 10;
-    const printableWidthMm = 190; // 210 - 20mm margins
-    const printableHeightMm = 272; // 297 - 25mm margins
+    // User-selected 20mm standard safe margins to guarantee zero edge clipping
+    const marginX = 20; // 20mm side margins
+    const marginTop = 20; // 20mm top margin
+    const marginBottom = 20; // 20mm bottom margin
+    const printableWidthMm = 210 - marginX * 2; // 170mm printable width
+    const printableHeightMm = 297 - marginTop - marginBottom; // 257mm printable height
+    const maxPageHeightPx = Math.floor(canvas.width * (printableHeightMm / printableWidthMm));
 
-    // Calculate canvas height corresponding to one A4 printable page
-    const pageHeightPx = Math.floor(canvas.width * (printableHeightMm / printableWidthMm));
-    const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx));
+    // Measure atomic card components in cloned DOM to detect exact boundary coordinates
+    const cloneRect = clone.getBoundingClientRect();
+    const scaleRatio = canvas.width / Math.max(1, cloneRect.width);
+
+    const breakAvoidSelectors = [
+      '.avoid-break',
+      '.avoid-page-break',
+      '[class*="rounded-3xl"]',
+      '[class*="rounded-2xl"]',
+      '[class*="rounded-xl"]',
+      'article',
+      'section',
+      'hr',
+      '.border-b-2',
+      '.grid',
+    ].join(', ');
+
+    const cardElements = clone.querySelectorAll(breakAvoidSelectors);
+    const cardBounds: { top: number; bottom: number; height: number }[] = [];
+
+    cardElements.forEach((el) => {
+      if (!(el instanceof HTMLElement)) return;
+      const r = el.getBoundingClientRect();
+      const top = Math.floor((r.top - cloneRect.top) * scaleRatio);
+      const bottom = Math.ceil((r.bottom - cloneRect.top) * scaleRatio);
+      const height = bottom - top;
+      // Filter out tiny elements or massive wrappers larger than 85% of an A4 page
+      if (height > 40 && height < maxPageHeightPx * 0.85) {
+        cardBounds.push({ top, bottom, height });
+      }
+    });
+
+    cardBounds.sort((a, b) => a.top - b.top);
+
+    // Calculate smart page cuts so no card is sliced across page boundaries
+    interface PageCut {
+      startY: number;
+      endY: number;
+    }
+    const pageCuts: PageCut[] = [];
+    let currentY = 0;
+    const safetyBufferPx = Math.round(14 * scaleRatio); // Visual cushion above the split card
+
+    while (currentY < canvas.height - 20) {
+      let tentativeEndY = currentY + maxPageHeightPx;
+
+      if (tentativeEndY >= canvas.height) {
+        pageCuts.push({ startY: currentY, endY: canvas.height });
+        break;
+      }
+
+      // Check which cards would be sliced by tentativeEndY
+      let bestCutY = tentativeEndY;
+      const candidates: number[] = [];
+
+      for (const card of cardBounds) {
+        // If this card is intersected by tentativeEndY
+        if (card.top < tentativeEndY && card.bottom > tentativeEndY) {
+          // If this card started with enough room on the current page, it can be pushed to next page
+          if (card.top >= currentY + 120) {
+            candidates.push(card.top - safetyBufferPx);
+          }
+        }
+      }
+
+      if (candidates.length > 0) {
+        // Pick the earliest cut point among all split cards so that NO split card is clipped!
+        const earliestCut = Math.min(...candidates);
+        if (earliestCut > currentY + 100) {
+          bestCutY = earliestCut;
+        }
+      }
+
+      // Safeguard: guarantee forward progress of at least 100px
+      if (bestCutY <= currentY + 100) {
+        bestCutY = tentativeEndY;
+      }
+
+      pageCuts.push({ startY: currentY, endY: bestCutY });
+      currentY = bestCutY;
+    }
+
+    const totalPages = Math.max(1, pageCuts.length);
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -492,11 +580,11 @@ export async function generatePdfFromElement({
       compress: true,
     });
 
-    onProgress?.(75, 'Assembling multi-page dossier...');
+    onProgress?.(75, 'Assembling multi-page dossier with smart page breaks...');
 
     for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-      const srcY = pageIdx * pageHeightPx;
-      const sliceHeightPx = Math.min(pageHeightPx, canvas.height - srcY);
+      const cut = pageCuts[pageIdx];
+      const sliceHeightPx = cut.endY - cut.startY;
 
       // Create an exact canvas slice for this page
       const pageCanvas = document.createElement('canvas');
@@ -510,7 +598,7 @@ export async function generatePdfFromElement({
         ctx.drawImage(
           canvas,
           0,
-          srcY,
+          cut.startY,
           canvas.width,
           sliceHeightPx,
           0,
@@ -538,14 +626,38 @@ export async function generatePdfFromElement({
         'FAST'
       );
 
-      // Running page footer
+      // Running page header in the 20mm top margin zone (at 12mm)
+      // Clean non-ASCII and emoji chars from running header so standard jsPDF Helvetica font renders cleanly
+      const cleanHeaderTitle = reportTitle
+        .replace(/[^\x20-\x7E]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7.5);
+      pdf.setTextColor(160, 160, 160);
+      pdf.text(
+        cleanHeaderTitle,
+        marginX,
+        12,
+        { align: 'left' }
+      );
+      pdf.text(
+        'CONFIDENTIAL DOSSIER',
+        210 - marginX,
+        12,
+        { align: 'right' }
+      );
+
+      // Running page footer safely placed in the 20mm bottom margin zone (at 286mm)
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(8);
       pdf.setTextColor(140, 140, 140);
       pdf.text(
-        `${reportTitle} · Page ${pageIdx + 1} of ${totalPages}`,
+        `Page ${pageIdx + 1} of ${totalPages}`,
         105,
-        290,
+        286,
         { align: 'center' }
       );
     }

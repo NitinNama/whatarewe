@@ -94,13 +94,14 @@
 
 @media print {
   @page {
-    size: A4;
-    margin: 15mm;
+    size: A4 portrait;
+    margin: 20mm;
   }
 
   *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    box-sizing: border-box !important;
   }
 
   body {
@@ -108,6 +109,8 @@
     color: #000000 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .no-print {
@@ -116,6 +119,17 @@
 
   .print-only {
     display: block !important;
+  }
+
+  /* Safe container boundaries for printable pages */
+  .printable-dossier {
+    width: 100% !important;
+    max-width: 170mm !important;
+    margin: 0 auto !important;
+    padding: 0 2mm !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
   /* CSS print media rules: break-inside: avoid; on all cards, sections, and dossiers to prevent awkward card-splitting across pages */
@@ -130,6 +144,8 @@
   .printable-dossier section {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
   }
 
   /* Headers must carry break-after: avoid; */
@@ -143,13 +159,6 @@
   .page-break-before {
     break-before: page !important;
     page-break-before: always !important;
-  }
-
-  /* Expand full width for printable pages */
-  .printable-dossier {
-    max-width: 100% !important;
-    padding: 0 !important;
-    box-shadow: none !important;
   }
 
   /* When printing or exporting to PDF, stack multi-participant cards vertically */
@@ -167,6 +176,7 @@
   .md\:grid-cols-2 > div,
   .slide-2-cards-container > div {
     width: 100% !important;
+    box-sizing: border-box !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
@@ -185,8 +195,11 @@
     left: auto !important;
     top: auto !important;
     width: 100% !important;
+    max-width: 170mm !important;
+    margin: 0 auto !important;
     display: block !important;
     pointer-events: auto !important;
+    box-sizing: border-box !important;
   }
 }
 

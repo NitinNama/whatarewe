@@ -1,6 +1,6 @@
 {
-  "summary": "Implementation plan for Indus / What Brandon Thinks (Whatarewe) conversational autopsy web application, detailing the dual-phase Instagram stories & 19-chapter autopsy dossier, sample chat exploration, and AI analysis architecture.",
-  "updatedAt": "2026-10-17T07:40:00.322310656Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Implementation plan for smart, element-aware page breaks in the PDF exporter to prevent cards, character profiles, heatmaps, and text from getting sliced across A4 page splits.",
+  "updatedAt":  "2026-10-21T17:58:48.663423120Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

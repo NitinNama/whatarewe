@@ -919,7 +919,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       id={isPrintContainer ? 'printable-dossier' : undefined}
       className={`w-full space-y-12 py-4 ${
         isPrintContainer
-          ? 'printable-dossier bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl'
+          ? 'printable-dossier bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl box-border'
           : ''
       }`}
     >
