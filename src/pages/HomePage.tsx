@@ -90,7 +90,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
       {/* 1. Hero Section */}
       <section className="pt-12 sm:pt-20 px-6 max-w-4xl mx-auto text-center">
         <div className="relative inline-flex items-center justify-center mb-8">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white border border-zinc-200 shadow-sm transition-transform duration-300 hover:scale-105 overflow-hidden">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm transition-transform duration-300 hover:scale-105 overflow-hidden">
             <img
               src={indusAvatar}
               alt="Whatarewe avatar"
@@ -98,33 +98,33 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
               className="w-full h-full rounded-full object-cover transition-transform duration-300 ease-out hover:scale-110 cursor-pointer"
             />
           </div>
-          <span className="absolute -bottom-1 right-0 bg-zinc-900 text-white text-[11px] font-medium px-2.5 py-0.5 rounded-full border-2 border-[#FAF9F6]">
+          <span className="absolute -bottom-1 right-0 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[11px] font-medium px-2.5 py-0.5 rounded-full border-2 border-[#FAF9F6] dark:border-[#121214]">
             Indus
           </span>
         </div>
 
         <h1
-          className="text-4xl sm:text-6xl font-editorial font-medium tracking-tight text-zinc-900 leading-[1.08] max-w-2xl mx-auto animate-fade-in-up"
+          className="text-4xl sm:text-6xl font-editorial font-medium tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.08] max-w-2xl mx-auto animate-fade-in-up"
           style={{ textWrap: 'balance' }}
         >
-          Upload a chat. <span className="italic font-normal text-zinc-700">Whatarewe</span> tells you what’s really going on.
+          Upload a chat. <span className="italic font-normal text-zinc-700 dark:text-zinc-300">Whatarewe</span> tells you what’s really going on.
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg text-zinc-600 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-6 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
           Your opinionated, emotionally intelligent friend who reads every message in your WhatsApp or iMessage export and gives you the honest voice-note truth—who cares more, when the shift happened, and what the subtext actually means.
         </p>
 
         <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
             onClick={handleTryNowClick}
-            className="relative overflow-hidden w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-zinc-900 text-white text-sm font-semibold rounded-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer whitespace-nowrap shadow-sm"
+            className="relative overflow-hidden w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer whitespace-nowrap shadow-sm"
           >
             <span className="relative z-10">Try It Now</span>
             <ArrowRight className="relative z-10 w-4 h-4" />
             {ripples.map((ripple) => (
               <span
                 key={ripple.id}
-                className="absolute rounded-full bg-white/35 pointer-events-none animate-button-ripple"
+                className="absolute rounded-full bg-white/35 dark:bg-zinc-900/35 pointer-events-none animate-button-ripple"
                 style={{
                   left: ripple.x,
                   top: ripple.y,
@@ -137,13 +137,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
 
           <button
             onClick={() => onNavigate('/report', 'maya-julian-sample')}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-zinc-800 text-sm font-medium rounded-full border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 transition-colors cursor-pointer whitespace-nowrap"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm font-medium rounded-full border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-750 transition-colors cursor-pointer whitespace-nowrap"
           >
             <span>Read Maya & Julian’s Sample Report</span>
           </button>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-6 text-xs text-zinc-500">
+        <div className="mt-8 flex items-center justify-center gap-6 text-xs text-zinc-500 dark:text-zinc-400">
           <div className="inline-flex items-center gap-2">
             <span className="w-5 h-5 rounded-full bg-[#25D366]/15 text-[#128C7E] inline-flex items-center justify-center">
               <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -152,26 +152,26 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
             </span>
             <span>WhatsApp (.txt export)</span>
           </div>
-          <span aria-hidden="true" className="text-zinc-300">·</span>
+          <span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">·</span>
           <div className="inline-flex items-center gap-2">
             <span className="w-5 h-5 rounded-full bg-[#007AFF]/15 text-[#007AFF] inline-flex items-center justify-center">
               <MessageCircle className="w-3.5 h-3.5 fill-current" />
             </span>
             <span>iMessage (.txt export)</span>
           </div>
-          <span aria-hidden="true" className="text-zinc-300">·</span>
+          <span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">·</span>
           <span>100% private in-memory parsing</span>
         </div>
       </section>
 
       {/* 2. Scrolling Pill Tags (Interactive Category Buttons) */}
-      <section className="overflow-hidden py-3 border-y border-zinc-200/80 bg-white/60">
+      <section className="overflow-hidden py-3 border-y border-zinc-200/80 dark:border-zinc-800/80 bg-white/60 dark:bg-zinc-900/60 transition-colors duration-200">
         <div className="animate-marquee flex items-center gap-3 px-4">
           {[...SUPPORTED_CHAT_TYPES, ...SUPPORTED_CHAT_TYPES].map((item, idx) => (
             <button
               key={`${item.label}-${idx}`}
               onClick={() => handleTagClick(item.label)}
-              className={`px-4 py-2 rounded-full bg-white border border-zinc-200/90 text-sm font-medium text-zinc-800 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${item.accent}`}
+              className={`px-4 py-2 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200/90 dark:border-zinc-700/90 text-sm font-medium text-zinc-800 dark:text-zinc-200 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${item.accent}`}
             >
               {item.label}
             </button>
@@ -182,53 +182,53 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
       {/* 3. Bento Grid Showcase */}
       <section className="max-w-6xl mx-auto px-6">
         <div className="max-w-2xl mb-10">
-          <p className="text-xs font-medium text-zinc-500">01. How It Works</p>
-          <h2 className="mt-2 text-3xl sm:text-4xl font-editorial text-zinc-900 tracking-tight" style={{ textWrap: 'balance' }}>
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">01. How It Works</p>
+          <h2 className="mt-2 text-3xl sm:text-4xl font-editorial text-zinc-900 dark:text-zinc-100 tracking-tight" style={{ textWrap: 'balance' }}>
             Every pattern your friends suspect, backed by the actual timestamps.
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 bg-white rounded-2xl border border-zinc-200/90 p-7 sm:p-8 flex flex-col justify-between">
+          <div className="md:col-span-2 bg-white dark:bg-[#18181b] rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-7 sm:p-8 flex flex-col justify-between transition-colors duration-200">
             <div>
-              <p className="text-xs font-medium text-zinc-500">01. Quantitative Receipt Check</p>
-              <h3 className="mt-2 text-2xl font-editorial text-zinc-900">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">01. Quantitative Receipt Check</p>
+              <h3 className="mt-2 text-2xl font-editorial text-zinc-900 dark:text-zinc-100">
                 Initiation ratios, reply latency, and the 11:00 PM curfew test
               </h3>
-              <p className="mt-3 text-sm text-zinc-600 leading-relaxed max-w-xl">
+              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
                 Before Whatarewe writes a single word of commentary, our parser maps every timestamp across your entire chat history: who breaks 6-hour silences, whose average reply time stretches on weekends, and how much of your connection only exists after 11 PM.
               </p>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-zinc-100 grid grid-cols-3 gap-4 font-mono tabular-nums">
+            <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-3 gap-4 font-mono tabular-nums">
               <div>
-                <p className="text-xs text-zinc-500">Initiation Split</p>
-                <p className="text-xl font-semibold text-zinc-900 mt-1">72% / 28%</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Initiation Split</p>
+                <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mt-1">72% / 28%</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Reply Shift (Feb)</p>
-                <p className="text-xl font-semibold text-rose-600 mt-1">+118% slower</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Reply Shift (Feb)</p>
+                <p className="text-xl font-semibold text-rose-600 dark:text-rose-400 mt-1">+118% slower</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">After 11 PM</p>
-                <p className="text-xl font-semibold text-zinc-900 mt-1">46% of texts</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">After 11 PM</p>
+                <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mt-1">46% of texts</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-zinc-200/90 p-7 sm:p-8 flex flex-col justify-between">
+          <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-7 sm:p-8 flex flex-col justify-between transition-colors duration-200">
             <div>
-              <p className="text-xs font-medium text-zinc-500">02. Character Profiles & Awards</p>
-              <h3 className="mt-2 text-2xl font-editorial text-zinc-900">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">02. Character Profiles & Awards</p>
+              <h3 className="mt-2 text-2xl font-editorial text-zinc-900 dark:text-zinc-100">
                 Affectionate titles & subtext translation
               </h3>
-              <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
-                Every participant gets a custom title—like <span className="italic text-zinc-900">“CEO of Let Me Play It By Ear”</span>—plus scores on emotional availability, response speed, and double-text energy.
+              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                Every participant gets a custom title—like <span className="italic text-zinc-900 dark:text-zinc-100">“CEO of Let Me Play It By Ear”</span>—plus scores on emotional availability, response speed, and double-text energy.
               </p>
             </div>
-            <div className="mt-8 pt-6 border-t border-zinc-100">
-              <p className="text-xs text-zinc-500">Story-Format Presentation</p>
-              <p className="text-sm font-medium text-zinc-900 mt-1">
+            <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Story-Format Presentation</p>
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
                 7 interactive story slides + 18 deep relationship autopsy chapters
               </p>
             </div>
@@ -240,14 +240,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
       <section className="max-w-6xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <div>
-            <p className="text-xs font-medium text-zinc-500">02. Proof & Outcomes</p>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-editorial text-zinc-900 tracking-tight">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">02. Proof & Outcomes</p>
+            <h2 className="mt-2 text-3xl sm:text-4xl font-editorial text-zinc-900 dark:text-zinc-100 tracking-tight">
               What happened after they read the verdict.
             </h2>
           </div>
           <button
             onClick={() => onNavigate('/setup')}
-            className="text-sm font-medium text-zinc-900 underline underline-offset-4 hover:text-zinc-600 transition-colors cursor-pointer self-start sm:self-auto whitespace-nowrap"
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-200 underline underline-offset-4 hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors cursor-pointer self-start sm:self-auto whitespace-nowrap"
           >
             Upload your own chat →
           </button>
@@ -257,27 +257,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
           {TESTIMONIALS.map((t) => (
             <article
               key={t.name}
-              className="min-w-[310px] sm:min-w-0 snap-start bg-white rounded-2xl border border-zinc-200/90 p-7 flex flex-col justify-between"
+              className="min-w-[310px] sm:min-w-0 snap-start bg-white dark:bg-[#18181b] rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-7 flex flex-col justify-between transition-colors duration-200"
             >
               <div>
-                <div className="flex items-center gap-2 text-xs text-zinc-500 mb-4">
+                <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 mb-4">
                   <span>{t.chatType}</span>
                 </div>
-                <p className="text-sm text-zinc-700 leading-relaxed">
+                <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
                   “{t.quote}”
                 </p>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-zinc-100 flex items-center gap-3.5">
+              <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-3.5">
                 <img
                   src={t.avatar}
                   alt={t.name}
                   referrerPolicy="no-referrer"
-                  className="w-10 h-10 rounded-full object-cover border border-zinc-200 shrink-0"
+                  className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 shrink-0"
                 />
                 <div>
-                  <p className="text-sm font-semibold text-zinc-900">{t.name}</p>
-                  <p className="text-xs text-zinc-500">{t.role}</p>
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t.name}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t.role}</p>
                 </div>
               </div>
             </article>
@@ -287,17 +287,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onSelectRelation
 
       {/* 5. Bottom Conversion Callout */}
       <section className="max-w-4xl mx-auto px-6">
-        <div className="bg-zinc-900 text-white rounded-2xl p-8 sm:p-12 text-center">
-          <h2 className="text-3xl sm:text-4xl font-editorial font-normal tracking-tight max-w-xl mx-auto" style={{ textWrap: 'balance' }}>
+        <div className="bg-zinc-900 dark:bg-[#18181b] text-white rounded-2xl p-8 sm:p-12 text-center border border-transparent dark:border-zinc-800 shadow-md">
+          <h2 className="text-3xl sm:text-4xl font-editorial font-normal tracking-tight max-w-xl mx-auto text-white dark:text-zinc-100" style={{ textWrap: 'balance' }}>
             Ready to find out what Whatarewe really thinks about your chat?
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-zinc-300 max-w-lg mx-auto">
+          <p className="mt-3 text-sm sm:text-base text-zinc-300 dark:text-zinc-400 max-w-lg mx-auto">
             Takes 45 seconds. Raw messages are parsed in memory and immediately discarded after your report is created.
           </p>
           <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={() => onNavigate('/setup')}
-              className="px-7 py-3.5 bg-white text-zinc-900 text-sm font-semibold rounded-full hover:bg-zinc-100 transition-colors cursor-pointer whitespace-nowrap"
+              className="px-7 py-3.5 bg-white dark:bg-zinc-100 text-zinc-900 font-semibold rounded-full hover:bg-zinc-100 dark:hover:bg-white transition-colors cursor-pointer whitespace-nowrap shadow-xs"
             >
               Analyze My Chat →
             </button>

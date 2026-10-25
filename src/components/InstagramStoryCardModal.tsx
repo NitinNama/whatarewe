@@ -262,24 +262,24 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 no-print animate-in fade-in duration-200">
-      <div className="bg-[#FAF9F6] rounded-3xl p-5 sm:p-7 max-w-2xl w-full shadow-2xl border border-zinc-200 flex flex-col max-h-[92vh] overflow-y-auto">
+      <div className="bg-[#FAF9F6] dark:bg-[#18181b] rounded-3xl p-5 sm:p-7 max-w-2xl w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[92vh] overflow-y-auto">
         {/* Modal Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-zinc-200">
+        <div className="flex items-start justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 text-white font-mono text-[10px] font-semibold tracking-wider uppercase mb-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-mono text-[10px] font-semibold tracking-wider uppercase mb-1">
+              <Sparkles className="w-3 h-3 text-amber-400 dark:text-amber-500" />
               <span>9:16 Instagram Story Card</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-editorial font-bold text-zinc-900">
+            <h3 className="text-xl sm:text-2xl font-editorial font-bold text-zinc-900 dark:text-zinc-100">
               Share Your Chat Autopsy
             </h3>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               High-contrast vertical graphic formatted for Instagram Stories, WhatsApp Status, and DMs.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer"
+            className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -287,7 +287,7 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
 
         {/* Theme Picker */}
         <div className="py-3 flex items-center justify-between gap-2 overflow-x-auto">
-          <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider shrink-0">Theme:</span>
+          <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider shrink-0">Theme:</span>
           <div className="flex items-center gap-2">
             {(Object.keys(THEMES) as CardTheme[]).map((tKey) => {
               const th = THEMES[tKey];
@@ -299,8 +299,8 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
                   onClick={() => setSelectedTheme(tKey)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 border ${
                     isSelected
-                      ? 'border-zinc-900 bg-zinc-900 text-white shadow-xs'
-                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                      ? 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
+                      : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600'
                   }`}
                 >
                   <span
@@ -488,12 +488,12 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
         )}
 
         {/* Action Buttons */}
-        <div className="pt-4 border-t border-zinc-200 flex flex-col sm:flex-row gap-2.5">
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-2.5">
           <button
             type="button"
             onClick={handleDownloadImage}
             disabled={isCapturing}
-            className="flex-1 py-3 px-5 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm disabled:opacity-50"
+            className="flex-1 py-3 px-5 rounded-full bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm disabled:opacity-50"
           >
             {isCapturing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -517,18 +517,18 @@ export const InstagramStoryCardModal: React.FC<InstagramStoryCardModalProps> = (
             type="button"
             onClick={handleCopyImage}
             disabled={isCapturing}
-            className="py-3 px-4 rounded-full bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-800 font-medium text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+            className="py-3 px-4 rounded-full bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-medium text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
           >
             {copiedImage || copiedLink ? (
-              <Check className="w-4 h-4 text-emerald-600" />
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <Copy className="w-4 h-4 text-zinc-500" />
+              <Copy className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             )}
             <span>{copiedImage ? 'Image Copied!' : copiedLink ? 'Link Copied!' : 'Copy'}</span>
           </button>
         </div>
 
-        <div className="mt-3 text-[10px] font-mono text-zinc-400 text-center">
+        <div className="mt-3 text-[10px] font-mono text-zinc-400 dark:text-zinc-500 text-center">
           Rendered directly in your browser with high-DPI canvas capture · Ready for 1080×1920 stories
         </div>
       </div>

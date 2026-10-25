@@ -445,38 +445,55 @@ export async function generatePdfFromElement({
     // Temporarily apply the getComputedStyle patch to prevent oklch exceptions in html2canvas
     window.getComputedStyle = patchedGetComputedStyle as any;
 
-    // Render cloned DOM tree to high-DPI canvas
-    const canvas = await html2canvas(clone, {
-      scale: 2, // 2x resolution for print sharpness
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#FAF9F6',
-      width: 820,
-      windowWidth: 820,
-      scrollY: 0,
-      scrollX: 0,
-      onclone: (clonedDoc) => {
-        // Disable any running CSS transitions/animations in cloned doc for freeze-frame fidelity
-        try {
-          const disableAnimationsStyle = clonedDoc.createElement('style');
-          disableAnimationsStyle.textContent = `
-            *, *::before, *::after {
-              animation: none !important;
-              transition: none !important;
-            }
-          `;
-          clonedDoc.head?.appendChild(disableAnimationsStyle);
-        } catch {}
+    // Ensure document and clone render strictly in print/light editorial palette during PDF generation
+    const wasDarkModeActive = document.documentElement.classList.contains('dark');
+    if (wasDarkModeActive) {
+      document.documentElement.classList.remove('dark');
+    }
 
-        // Deeply sanitize all <style> elements and attributes in the cloned document
-        sanitizeDocumentStyles(clonedDoc, convertColor);
+    let canvas: HTMLCanvasElement;
+    try {
+      // Render cloned DOM tree to high-DPI canvas
+      canvas = await html2canvas(clone, {
+        scale: 2, // 2x resolution for print sharpness
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#FAF9F6',
+        width: 820,
+        windowWidth: 820,
+        scrollY: 0,
+        scrollX: 0,
+        onclone: (clonedDoc) => {
+          // Explicitly ensure cloned document is in light editorial mode
+          clonedDoc.documentElement.classList.remove('dark');
+          clonedDoc.body.classList.remove('dark');
 
-        // Also patch clonedDoc's defaultView getComputedStyle if present
-        if (clonedDoc.defaultView) {
-          clonedDoc.defaultView.getComputedStyle = patchedGetComputedStyle as any;
-        }
-      },
-    });
+          // Disable any running CSS transitions/animations in cloned doc for freeze-frame fidelity
+          try {
+            const disableAnimationsStyle = clonedDoc.createElement('style');
+            disableAnimationsStyle.textContent = `
+              *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+              }
+            `;
+            clonedDoc.head?.appendChild(disableAnimationsStyle);
+          } catch {}
+
+          // Deeply sanitize all <style> elements and attributes in the cloned document
+          sanitizeDocumentStyles(clonedDoc, convertColor);
+
+          // Also patch clonedDoc's defaultView getComputedStyle if present
+          if (clonedDoc.defaultView) {
+            clonedDoc.defaultView.getComputedStyle = patchedGetComputedStyle as any;
+          }
+        },
+      });
+    } finally {
+      if (wasDarkModeActive) {
+        document.documentElement.classList.add('dark');
+      }
+    }
 
     onProgress?.(60, 'Calculating smart element-aware page breaks...');
 

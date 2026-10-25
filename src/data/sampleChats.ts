@@ -721,9 +721,9 @@ export const SAMPLE_REPORT_BOYS_GROUP: StoredReport = {
     characterProfiles: [
       {
         name: 'Marcus',
-        funnyTitle: 'Marcus — Minister of Unread Google Sheets & Flight Escalation 📊',
+        funnyTitle: 'Marcus — Minister of Emotional Labor & Unpaid Custody 🫂',
         personalitySummary:
-          'Marcus treats the group chat like an airport traffic control tower. He does the math, tracks airfare swings, and slowly watches his sanity leave his body.',
+          'Marcus treats the group chat like an airport traffic control tower on the brink of total radar failure. He does the math, tracks airfare swings, and slowly watches his sanity leave his body while three adult men pretend they do not possess passports. Every single booking in this thread happened solely because Marcus refused to let group inertia win.',
         signatureMove: 'Pasting the updated flight price with passive-aggressive dollar deltas',
         bestMoment: 'Finding $540 roundtrip flights within 14 minutes of opening Skyscanner',
         worstMoment: 'Typing an all-caps monologue comparing the group to a failing municipal transit board',
@@ -738,11 +738,15 @@ export const SAMPLE_REPORT_BOYS_GROUP: StoredReport = {
           },
           {
             type: 'prose',
-            content: 'And instead of acknowledging the logistical collapse, what did your best friends send in response?',
+            content: 'And every time you tried to set a hard logistical deadline, the group responded with unconditional enthusiasm and zero financial execution:',
           },
           {
             type: 'bubble',
-            bubble: { text: 'Option 2 goes crazy 🔥🔥 (it was the rental car tab)' },
+            bubble: { text: 'I made a Google Sheet with 4 Airbnb options with a pool. Please vote by tonight.' },
+          },
+          {
+            type: 'prose',
+            content: 'You did not choose to become the group chaperone; you were drafted into unpaid emotional custody by a committee of logistical delinquents.',
           },
         ],
         scores: {
@@ -750,34 +754,125 @@ export const SAMPLE_REPORT_BOYS_GROUP: StoredReport = {
           responseSpeed: 5,
           vulnerability: 3,
           doubleTextEnergy: 5,
+          pettyPotential: 3,
+          humorIndex: 4,
+        },
+      },
+      {
+        name: 'Devon',
+        funnyTitle: 'Devon — Minister of Broken Plans & Theoretical Hangouts 🗓️🚫',
+        personalitySummary:
+          'Devon possesses an Olympic-level enthusiasm for events that are scheduled at least six weeks in advance, paired with an incurable paralysis the day of. He drops instant "1000% locked in" promises before remembering mandatory weddings and second-cousin obligations. He does not actually hate traveling with the boys; he simply loves the abstract dopamine of trip planning far more than boarding a flight.',
+        signatureMove: 'Typing "Locked. Putting PTO in right now" followed three weeks later by a mandatory family conflict',
+        bestMoment: 'Hyping the group during the initial Lisbon brainstorm with unmatched golden retriever energy',
+        worstMoment: 'Revealing the Vermont wedding conflict three hours after flights jumped by $150',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Devon, your commitment timeline operates strictly in hypothetical parallel dimensions:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Locked. Putting PTO in right now.' },
+          },
+          {
+            type: 'prose',
+            content: 'And the moment non-refundable credit card transactions were requested, the sudden scheduling anomaly materialized out of thin air:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Ah man my girl just told me her cousin has that Vermont wedding in June...' },
+          },
+          {
+            type: 'prose',
+            content: 'You are the ultimate theoretical adventurer: unbeatable in the group chat brainstorm, utterly missing at the departure terminal.',
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 2,
+          responseSpeed: 4,
+          vulnerability: 2,
+          doubleTextEnergy: 1,
           pettyPotential: 4,
           humorIndex: 5,
         },
       },
       {
         name: 'Leo',
-        funnyTitle: 'Leo — Hype Instigator & Visual Literacy Dodger 🏎️',
-        personalitySummary: 'Leo brings immaculate vibes and zero reading comprehension to every proposed itinerary.',
-        signatureMove: 'Reacting with 🔥 to spreadsheets he has not opened',
+        funnyTitle: 'Leo — Minister of Treasury & Financial Evasion 💸📉',
+        personalitySummary:
+          'Leo treats every shared bill like a diplomatic negotiation between sovereign nations facing severe austerity sanctions. He brings immaculate vibes and zero visual literacy to every proposed itinerary. He is genuinely fond of everyone present, provided Marcus fronts the credit card and nobody asks him to open the rental car spreadsheet tab.',
+        signatureMove: 'Reacting with 🔥 to spreadsheets he has not opened while assuming someone else paid the deposit',
         bestMoment: 'Offering to cover the deposit if Marcus fronted the card for 48 hours',
         worstMoment: 'Mistaking a Hertz compact sedan breakdown for an infinity pool ocean villa',
         storyBlocks: [
           {
             type: 'prose',
-            content: 'Leo, your confidence is an inspiration to hedge fund managers everywhere:',
+            content: 'Leo, your confidence in financial and geographical matters is an inspiration to unregulated hedge fund managers everywhere:',
           },
           {
             type: 'bubble',
             bubble: { text: '1000% in, nothing stopping me this year' },
           },
+          {
+            type: 'prose',
+            content: 'And when asked to inspect the carefully constructed cost breakdown, your analytical rigor spoke for itself:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Option 2 goes crazy 🔥🔥 (it was the rental car tab)' },
+          },
+          {
+            type: 'prose',
+            content: 'You navigate group travel purely on faith, vibes, and Marcus’s credit limit.',
+          },
         ],
         scores: {
           emotionallyAvailable: 3,
           responseSpeed: 3,
-          vulnerability: 2,
+          vulnerability: 1,
           doubleTextEnergy: 2,
+          pettyPotential: 5,
+          humorIndex: 4,
+        },
+      },
+      {
+        name: 'Tariq',
+        funnyTitle: 'Tariq — Minister of Ghost Protocol & Selective Amnesia 🥷👻',
+        personalitySummary:
+          'Tariq moves through this group chat like a classified nuclear submarine running in silent mode beneath the Arctic ice cap. He reads every single message, observes every flight price increase, and witnesses every logistical meltdown without leaving a single fingerprint. When he finally emerges after days of radio silence, it is exclusively to ask if a middle school graduation conflicts with Europe.',
+        signatureMove: 'Appearing after 200 unread messages exclusively to raise an absurd scheduling objection',
+        bestMoment: 'Quietly showing up to the airport with valid luggage when everyone assumed he was ghosting',
+        worstMoment: 'Asking if the group can delay the entire Portugal departure because his 14-year-old cousin is finishing 8th grade',
+        storyBlocks: [
+          {
+            type: 'prose',
+            content: 'Tariq, you have weaponized the art of silent lurking into an impenetrable personal shield:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: 'Wait which weekend in June? My cousin might have a graduation party' },
+          },
+          {
+            type: 'prose',
+            content: 'And after the entire room dismantled your middle school graduation defense, your response was breathtaking:',
+          },
+          {
+            type: 'bubble',
+            bubble: { text: '👍' },
+          },
+          {
+            type: 'prose',
+            content: 'You are the phantom passenger of this trip: never confirming, never denying, forever lurking on double blue ticks.',
+          },
+        ],
+        scores: {
+          emotionallyAvailable: 1,
+          responseSpeed: 1,
+          vulnerability: 1,
+          doubleTextEnergy: 1,
           pettyPotential: 2,
-          humorIndex: 5,
+          humorIndex: 4,
         },
       },
     ],

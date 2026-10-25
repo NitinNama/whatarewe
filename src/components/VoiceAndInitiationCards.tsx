@@ -8,6 +8,103 @@ interface VoiceAndInitiationCardsProps {
   isPhoneFrame?: boolean;
 }
 
+interface CountUpSpanProps {
+  value: number;
+  suffix?: string;
+  durationMs?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  delayMs?: number;
+}
+
+export const CountUpSpan: React.FC<CountUpSpanProps> = ({
+  value,
+  suffix = '%',
+  durationMs = 950,
+  className = '',
+  style = {},
+  delayMs = 0,
+}) => {
+  const [currentValue, setCurrentValue] = React.useState<number>(0);
+  const [hasStarted, setHasStarted] = React.useState<boolean>(false);
+  const spanRef = React.useRef<HTMLSpanElement>(null);
+
+  React.useEffect(() => {
+    const el = spanRef.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setHasStarted(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(el);
+
+      const fallbackTimer = setTimeout(() => {
+        setHasStarted(true);
+      }, 150 + delayMs);
+
+      return () => {
+        observer.disconnect();
+        clearTimeout(fallbackTimer);
+      };
+    } else {
+      setHasStarted(true);
+    }
+  }, [delayMs]);
+
+  React.useEffect(() => {
+    if (!hasStarted) return;
+
+    let rafId: number;
+    let startTimestamp: number | null = null;
+    const startVal = 0;
+    const targetVal = Number(value) || 0;
+
+    const step = (now: number) => {
+      if (startTimestamp === null) startTimestamp = now;
+      const elapsed = now - startTimestamp;
+      const progress = Math.min(elapsed / durationMs, 1);
+      // Smooth easeOutCubic curve
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const nextVal = Math.round(startVal + (targetVal - startVal) * ease);
+      setCurrentValue(nextVal);
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(step);
+      }
+    };
+
+    const delayTimer = setTimeout(() => {
+      rafId = requestAnimationFrame(step);
+    }, delayMs);
+
+    return () => {
+      clearTimeout(delayTimer);
+      cancelAnimationFrame(rafId);
+    };
+  }, [hasStarted, value, durationMs, delayMs]);
+
+  return (
+    <span
+      ref={spanRef}
+      className={`inline-block ${className} ${hasStarted ? 'animate-drop-from-top' : 'opacity-0 -translate-y-4'}`}
+      style={{
+        ...style,
+        animationDelay: `${delayMs}ms`,
+      }}
+    >
+      {currentValue}
+      {suffix}
+    </span>
+  );
+};
+
 export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = ({
   participants,
   totalMessages,
@@ -122,15 +219,15 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
       {/* ======================================================== */}
       {/* CARD 1 — "Share of voice" (Message Distribution)        */}
       {/* ======================================================== */}
-      <div className="bg-[#EAE6F8] rounded-3xl p-6 sm:p-7 flex flex-col justify-between border border-[#d8b4fe] shadow-xs">
+      <div className="bg-[#EAE6F8] dark:bg-[#1a1429] rounded-3xl p-6 sm:p-7 flex flex-col justify-between border border-[#d8b4fe] dark:border-purple-900/60 shadow-xs">
         <div>
-          <span className="text-xs font-mono text-purple-800 uppercase tracking-wider font-semibold">
+          <span className="text-xs font-mono text-purple-800 dark:text-purple-300 uppercase tracking-wider font-semibold">
             Message Distribution
           </span>
-          <h2 className="text-2xl font-editorial text-zinc-900 mt-1">
+          <h2 className="text-2xl font-editorial text-zinc-900 dark:text-zinc-100 mt-1">
             Share of voice
           </h2>
-          <p className="text-xs text-zinc-600 mt-1">
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">
             Who fills the screen · Total messages and overall conversation share
           </p>
         </div>
@@ -178,21 +275,22 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
 
             {/* Center of Donut: Displays the leader's name and their exact message percentage */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none select-none">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-semibold">
+              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-semibold">
                 Leader
               </span>
               <span
-                className="text-base font-bold font-mono text-zinc-900 truncate max-w-[85px] px-1"
+                className="text-base font-bold font-mono text-zinc-900 dark:text-zinc-100 truncate max-w-[85px] px-1"
                 title={messageLeader.name}
               >
                 {messageLeader.name}
               </span>
-              <span
+              <CountUpSpan
+                value={messageLeader.percentage}
+                suffix="%"
+                delayMs={120}
                 className="text-xs sm:text-sm font-mono font-bold"
                 style={{ color: messageLeader.color }}
-              >
-                {messageLeader.percentage}%
-              </span>
+              />
             </div>
           </div>
 
@@ -201,7 +299,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
             {messageDistributionData.map((p) => (
               <div
                 key={p.name}
-                className="w-full flex items-center justify-between gap-3 text-xs font-mono tabular-nums px-3 py-2.5 rounded-xl bg-white border border-[#e9d5ff] shadow-2xs hover:bg-white transition-colors box-border"
+                className="w-full flex items-center justify-between gap-3 text-xs font-mono tabular-nums px-3 py-2.5 rounded-xl bg-white dark:bg-zinc-800/90 border border-[#e9d5ff] dark:border-purple-900/40 shadow-2xs transition-colors box-border"
                 style={{ minHeight: '44px' }}
               >
                 <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -210,14 +308,19 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
                     style={{ backgroundColor: p.color }}
                     aria-hidden="true"
                   />
-                  <span className="text-zinc-500 font-normal shrink-0">#{p.rank}</span>
-                  <span className="font-semibold text-zinc-900 truncate min-w-0" title={p.name}>
+                  <span className="text-zinc-500 dark:text-zinc-400 font-normal shrink-0">#{p.rank}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate min-w-0" title={p.name}>
                     {p.name}
                   </span>
                 </div>
                 <div className="shrink-0 text-right whitespace-nowrap pl-2 flex items-baseline justify-end gap-1.5 font-mono">
-                  <span className="font-bold text-zinc-900">{p.percentage}%</span>
-                  <span className="text-zinc-500 text-[11px]">
+                  <CountUpSpan
+                    value={p.percentage}
+                    suffix="%"
+                    delayMs={p.rank * 80}
+                    className="font-bold text-zinc-900 dark:text-zinc-100"
+                  />
+                  <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                     ({p.messageCount.toLocaleString()} msgs)
                   </span>
                 </div>
@@ -227,7 +330,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
         </div>
 
         {/* Statistical Integrity Stamp */}
-        <div className="pt-3 border-t border-[#d8b4fe] flex items-center justify-between text-[11px] font-mono text-purple-900/80">
+        <div className="pt-3 border-t border-[#d8b4fe] dark:border-purple-900/60 flex items-center justify-between text-[11px] font-mono text-purple-900/80 dark:text-purple-300">
           <span>Σ Share of Voice = 100%</span>
           <span>
             {messageDistributionData.length} participant
@@ -239,15 +342,15 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
       {/* ======================================================== */}
       {/* CARD 2 — "Who starts the conversation" (Conversation Starters) */}
       {/* ======================================================== */}
-      <div className="bg-[#E6F4EA] rounded-3xl p-7 flex flex-col justify-between border border-[#a7f3d0] shadow-xs">
+      <div className="bg-[#E6F4EA] dark:bg-[#11241a] rounded-3xl p-7 flex flex-col justify-between border border-[#a7f3d0] dark:border-emerald-900/60 shadow-xs">
         <div>
-          <span className="text-xs font-mono text-emerald-800 uppercase tracking-wider font-semibold">
+          <span className="text-xs font-mono text-emerald-800 dark:text-emerald-300 uppercase tracking-wider font-semibold">
             Conversation Starters
           </span>
-          <h2 className="text-2xl font-editorial text-zinc-900 mt-1">
+          <h2 className="text-2xl font-editorial text-zinc-900 dark:text-zinc-100 mt-1">
             Who starts the conversation
           </h2>
-          <p className="text-xs text-zinc-600 mt-1">
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">
             Who breaks the silence · New threads started after 6+ hours of radio silence
           </p>
         </div>
@@ -258,7 +361,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
             <div key={p.name} className="flex items-center gap-3">
               {/* Name on left with color dot */}
               <div
-                className="w-24 sm:w-28 shrink-0 flex items-center gap-1.5 text-xs font-semibold text-zinc-900 truncate"
+                className="w-24 sm:w-28 shrink-0 flex items-center gap-1.5 text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate"
                 title={p.name}
               >
                 <span
@@ -270,7 +373,7 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
               </div>
 
               {/* Horizontal pill progress bar with their unique color */}
-              <div className="flex-1 h-3.5 bg-[#a7f3d0] rounded-full overflow-hidden p-0.5">
+              <div className="flex-1 h-3.5 bg-[#a7f3d0] dark:bg-emerald-950/80 rounded-full overflow-hidden p-0.5">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -281,11 +384,15 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
               </div>
 
               {/* "XX% (YY starts)" on right */}
-              <div className="shrink-0 font-mono text-xs tabular-nums text-right text-zinc-800 min-w-[95px] whitespace-nowrap">
-                <span className="font-bold" style={{ color: p.color }}>
-                  {p.initiationPercent}%
-                </span>{' '}
-                <span className="text-zinc-500 text-[11px]">
+              <div className="shrink-0 font-mono text-xs tabular-nums text-right text-zinc-800 dark:text-zinc-200 min-w-[95px] whitespace-nowrap">
+                <CountUpSpan
+                  value={p.initiationPercent}
+                  suffix="%"
+                  delayMs={p.rank * 80}
+                  className="font-bold"
+                  style={{ color: p.color }}
+                />{' '}
+                <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                   ({p.initiationCount} starts)
                 </span>
               </div>
@@ -294,12 +401,16 @@ export const VoiceAndInitiationCards: React.FC<VoiceAndInitiationCardsProps> = (
         </div>
 
         {/* Callout: Indus's note highlighting who initiates the most conversations */}
-        <div className="p-3.5 bg-white rounded-xl border border-[#a7f3d0] text-xs text-zinc-700">
-          <span className="font-semibold text-emerald-950">Indus Note:</span>{' '}
-          <span className="font-semibold text-zinc-900">{topInitiator.name}</span> initiates{' '}
-          <span className="font-semibold font-mono" style={{ color: topInitiator.color }}>
-            {topInitiator.initiationPercent}%
-          </span>{' '}
+        <div className="p-3.5 bg-white dark:bg-zinc-800/90 rounded-xl border border-[#a7f3d0] dark:border-emerald-900/40 text-xs text-zinc-700 dark:text-zinc-300">
+          <span className="font-semibold text-emerald-950 dark:text-emerald-300">Indus Note:</span>{' '}
+          <span className="font-semibold text-zinc-900 dark:text-zinc-100">{topInitiator.name}</span> initiates{' '}
+          <CountUpSpan
+            value={topInitiator.initiationPercent}
+            suffix="%"
+            delayMs={200}
+            className="font-semibold font-mono"
+            style={{ color: topInitiator.color }}
+          />{' '}
           of conversations ({topInitiator.initiationCount} starts), breaking the silence most
           frequently.
         </div>

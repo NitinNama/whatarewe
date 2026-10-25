@@ -1241,36 +1241,38 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* 1. Header Bar: Mode Switcher + Story Progress / Share / Export PDF buttons */}
       <div className="w-full space-y-3 mb-6 no-print">
         {/* Top bar: Mode Toggle & Utilities */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500 font-mono">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="font-semibold text-zinc-900">{relationshipType}</span>
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">{relationshipType}</span>
             <span aria-hidden="true">·</span>
             <span>{stats.totalMessages.toLocaleString()} msgs</span>
 
             {/* Analysis Grade Badge in Top Bar */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-zinc-300 bg-white text-zinc-900 shadow-2xs font-mono font-bold text-[10px]">
-              <span className="text-zinc-400 uppercase text-[9px]">GRADE</span>
-              <span className="font-black text-xs text-zinc-900">{analysisGradeInfo.grade}</span>
-              <span className="text-zinc-300">·</span>
-              <span className="text-zinc-600 font-medium text-[9px] uppercase tracking-wide">{analysisGradeInfo.descriptor}</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs font-mono font-bold text-[10px]">
+              <span className="text-zinc-400 dark:text-zinc-400 uppercase text-[9px]">GRADE</span>
+              <span className="font-black text-xs text-zinc-900 dark:text-zinc-100">{analysisGradeInfo.grade}</span>
+              <span className="text-zinc-300 dark:text-zinc-600">·</span>
+              <span className="text-zinc-600 dark:text-zinc-300 font-medium text-[9px] uppercase tracking-wide">{analysisGradeInfo.descriptor}</span>
             </div>
 
             {/* 30-Day Archive Badge */}
-            <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
+            <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-zinc-200 dark:border-zinc-700">
               <Clock className="w-2.5 h-2.5" />
               <span>30-Day Archive</span>
             </span>
 
-            {isSample && <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[10px]">Sample</span>}
+            {isSample && <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded text-[10px]">Sample</span>}
           </div>
 
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {/* View Mode Switcher */}
-            <div className="flex items-center bg-zinc-100 p-1 rounded-full border border-zinc-200">
+            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-full border border-zinc-200 dark:border-zinc-700">
               <button
                 onClick={() => setViewMode('slides')}
                 className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                  viewMode === 'slides' ? 'bg-white text-zinc-900 shadow-2xs font-semibold' : 'text-zinc-600 hover:text-zinc-900'
+                  viewMode === 'slides'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
                 }`}
               >
                 Story Slides
@@ -1278,7 +1280,9 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <button
                 onClick={() => setViewMode('dossier')}
                 className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                  viewMode === 'dossier' ? 'bg-white text-zinc-900 shadow-2xs font-semibold' : 'text-zinc-600 hover:text-zinc-900'
+                  viewMode === 'dossier'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
                 }`}
               >
                 Full Dossier
@@ -1294,8 +1298,8 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               title={phoneFrameMode ? 'Switch to wide view' : 'Switch to phone mockup view'}
               className={`px-2.5 py-1 rounded-full border transition-colors inline-flex items-center gap-1 cursor-pointer text-xs ${
                 phoneFrameMode
-                  ? 'bg-zinc-900 text-white border-zinc-900 shadow-2xs font-semibold'
-                  : 'bg-white text-zinc-600 hover:text-zinc-900 border-zinc-200'
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-2xs font-semibold'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 border-zinc-200 dark:border-zinc-700'
               }`}
             >
               {phoneFrameMode ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
@@ -1312,8 +1316,8 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 <span>Unlock ($4.99)</span>
               </button>
             ) : (
-              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[10px] inline-flex items-center gap-1">
-                <Unlock className="w-2.5 h-2.5 text-emerald-600" />
+              <span className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono text-[10px] inline-flex items-center gap-1">
+                <Unlock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Unlocked</span>
               </span>
             )}
@@ -1324,7 +1328,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 triggerHaptic();
                 setShowStoryCardModal(true);
               }}
-              className="bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-200 rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs shadow-2xs"
+              className="bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs shadow-2xs"
               title="Generate 9:16 vertical card for Instagram Stories or WhatsApp status"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -1334,16 +1338,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             {/* Share Link */}
             <button
               onClick={handleCopyShareLink}
-              className="hover:text-zinc-900 transition-colors inline-flex items-center gap-1 cursor-pointer px-2 py-1 text-xs"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors inline-flex items-center gap-1 cursor-pointer px-2 py-1 text-xs"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Share'}</span>
             </button>
 
             {/* Export PDF Button (opens modal) */}
             <button
               onClick={() => setShowExportModal(true)}
-              className="hover:text-zinc-900 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs"
+              className="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white rounded-full transition-colors inline-flex items-center gap-1.5 cursor-pointer px-3 py-1 font-sans font-medium text-xs shadow-2xs"
             >
               <FileDown className="w-3.5 h-3.5" />
               <span>Export PDF</span>
@@ -1361,17 +1365,17 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   <div
                     key={idx}
                     onClick={() => handleSelectSlide(idx)}
-                    className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200 cursor-pointer transition-colors relative"
+                    className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 cursor-pointer transition-colors relative"
                     title={isLocked ? `Slide ${idx + 1} (Locked - Tap to Unlock)` : `Slide ${idx + 1}`}
                   >
                     <div
                       className={`h-full transition-all duration-300 ${
                         idx < currentSlide
-                          ? 'bg-zinc-900 w-full'
+                          ? 'bg-zinc-900 dark:bg-zinc-100 w-full'
                           : idx === currentSlide
                           ? isLocked
                             ? 'bg-amber-500 w-full'
-                            : 'bg-zinc-900 w-full'
+                            : 'bg-zinc-900 dark:bg-zinc-100 w-full'
                           : 'w-0'
                       }`}
                     />
@@ -1383,7 +1387,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <span className="flex items-center gap-1">
                 <span>Slide {currentSlide + 1} of {TOTAL_SLIDES}</span>
                 {!isPaid && !isSample && currentSlide >= 3 && (
-                  <span className="text-amber-600 font-semibold inline-flex items-center gap-0.5">
+                  <span className="text-amber-600 dark:text-amber-400 font-semibold inline-flex items-center gap-0.5">
                     <Lock className="w-2.5 h-2.5" /> Premium
                   </span>
                 )}
@@ -1785,11 +1789,11 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
     {/* 3. Bottom Slide-by-Slide Navigation Bar (in 'slides' mode) */}
       {viewMode === 'slides' && (
-        <div className="w-full pt-6 border-t border-zinc-200/80 flex items-center justify-between no-print mt-6">
+        <div className="w-full pt-6 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between no-print mt-6">
           <button
             onClick={handlePrevSlide}
             disabled={currentSlide === 0}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 disabled:opacity-30 disabled:hover:text-zinc-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-30 disabled:hover:text-zinc-600 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Previous</span>
@@ -1801,7 +1805,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 key={i}
                 onClick={() => handleSelectSlide(i)}
                 className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                  i === currentSlide ? 'bg-zinc-900 w-5' : 'bg-zinc-300 hover:bg-zinc-400'
+                  i === currentSlide ? 'bg-zinc-900 dark:bg-zinc-100 w-5' : 'bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600'
                 }`}
                 title={`Slide ${i + 1}`}
               />
@@ -1811,7 +1815,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           {currentSlide < TOTAL_SLIDES - 1 ? (
             <button
               onClick={handleNextSlide}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
             >
               <span>Continue</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -1819,7 +1823,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
           ) : (
             <button
               onClick={() => onNavigate('/setup')}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition-colors cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
             >
               <span>Analyze Another Chat →</span>
             </button>
@@ -1830,29 +1834,29 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* Paywall Unlock Modal */}
       {showPaywallModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 no-print animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-zinc-200 space-y-6">
+          <div className="bg-white dark:bg-[#18181b] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-6">
             <div className="flex items-start justify-between">
               <div>
                 <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold block">
                   WHATARWE FULL PASS
                 </span>
-                <h3 className="text-2xl font-editorial text-zinc-900 mt-1 font-semibold">
+                <h3 className="text-2xl font-editorial text-zinc-900 dark:text-zinc-100 mt-1 font-semibold">
                   Unlock Full Relationship Dossier
                 </h3>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   Access all 18 chapters, verbatim WhatsApp evidence bubbles, and printable PDF archive.
                 </p>
               </div>
               <button
                 onClick={() => setShowPaywallModal(false)}
-                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-full cursor-pointer"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1 rounded-full cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 bg-[#FAF9F6] p-4 rounded-2xl border border-zinc-200 text-xs text-zinc-700">
-              <p className="font-semibold text-zinc-900 text-xs">Included in the Full Pass:</p>
+            <div className="space-y-3 bg-[#FAF9F6] dark:bg-zinc-900/60 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-300">
+              <p className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">Included in the Full Pass:</p>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1885,16 +1889,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <button
                 onClick={handleUnlockPaidReport}
                 disabled={isUnlocking}
-                className="w-full py-3.5 px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm disabled:opacity-50"
+                className="w-full py-3.5 px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm disabled:opacity-50"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>{isUnlocking ? 'Unlocking Dossier...' : 'Unlock Full Access — $4.99 One-Time'}</span>
               </button>
               <button
                 onClick={handleUnlockPaidReport}
-                className="w-full py-2.5 px-4 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-[11px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                className="w-full py-2.5 px-4 rounded-full bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                <Sparkles className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                 <span>Instant Demo Unlock (Free Preview Pass)</span>
               </button>
 
@@ -1903,13 +1907,13 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   setShowPaywallModal(false);
                   onNavigate('/pricing');
                 }}
-                className="w-full py-1.5 text-center text-[11px] text-zinc-500 hover:text-zinc-800 font-mono transition-colors cursor-pointer"
+                className="w-full py-1.5 text-center text-[11px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 font-mono transition-colors cursor-pointer"
               >
                 🪙 Pay with Crypto (BTC, SOL, ETH, NEAR) or Supporter Pass →
               </button>
             </div>
 
-            <div className="text-[10px] text-zinc-400 font-mono text-center pt-2 border-t border-zinc-100">
+            <div className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono text-center pt-2 border-t border-zinc-100 dark:border-zinc-800">
               One-time purchase · No recurring charges · 30-day private archive access
             </div>
           </div>
@@ -1919,23 +1923,23 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* 4. Export PDF Modal */}
       {showExportModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 no-print animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-zinc-200 space-y-6">
+          <div className="bg-white dark:bg-[#18181b] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-6">
             <div className="flex items-start justify-between">
               <div>
                 <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold block">
                   OFFICIAL EXPORT
                 </span>
-                <h3 className="text-2xl font-editorial text-zinc-900 mt-1 font-semibold">
+                <h3 className="text-2xl font-editorial text-zinc-900 dark:text-zinc-100 mt-1 font-semibold">
                   Export Dossier PDF
                 </h3>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   Complete 18-section relationship autopsy formatted for multi-page A4 document.
                 </p>
               </div>
               <button
                 onClick={() => !isPdfExporting && setShowExportModal(false)}
                 disabled={isPdfExporting}
-                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-full cursor-pointer disabled:opacity-30"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1 rounded-full cursor-pointer disabled:opacity-30"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1943,14 +1947,14 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
             {isPdfExporting ? (
               <div className="py-6 space-y-4 text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-zinc-900 mx-auto" />
+                <Loader2 className="w-8 h-8 animate-spin text-zinc-900 dark:text-zinc-100 mx-auto" />
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-zinc-900">{pdfProgress.stage}</p>
-                  <p className="text-xs font-mono text-zinc-500">{pdfProgress.percent}% completed</p>
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{pdfProgress.stage}</p>
+                  <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400">{pdfProgress.percent}% completed</p>
                 </div>
-                <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-zinc-900 transition-all duration-300"
+                    className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300"
                     style={{ width: `${pdfProgress.percent}%` }}
                   />
                 </div>
@@ -1958,46 +1962,46 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             ) : (
               <div className="space-y-3">
                 {pdfErrorMessage && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs">
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-800 dark:text-rose-300 text-xs">
                     {pdfErrorMessage}
                   </div>
                 )}
                 {/* Option 1: Direct File Download */}
                 <button
                   onClick={handleDownloadPdf}
-                  className="w-full p-4 rounded-2xl bg-zinc-900 text-white hover:bg-zinc-800 transition-colors flex items-center justify-between text-left cursor-pointer group shadow-sm"
+                  className="w-full p-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white transition-colors flex items-center justify-between text-left cursor-pointer group shadow-sm"
                 >
                   <div className="space-y-0.5">
                     <span className="text-sm font-semibold block flex items-center gap-1.5">
                       <span>Download PDF File (.pdf)</span>
-                      <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-mono">
+                      <span className="bg-emerald-500/20 text-emerald-300 dark:text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-mono">
                         Recommended
                       </span>
                     </span>
-                    <span className="text-xs text-zinc-300 block">
+                    <span className="text-xs text-zinc-300 dark:text-zinc-600 block">
                       Multi-page vector & canvas document saved directly to your device
                     </span>
                   </div>
-                  <Download className="w-5 h-5 text-white/80 group-hover:scale-110 transition-transform shrink-0 ml-3" />
+                  <Download className="w-5 h-5 text-white/80 dark:text-zinc-900/80 group-hover:scale-110 transition-transform shrink-0 ml-3" />
                 </button>
 
                 {/* Option 2: Browser Print / Save as PDF */}
                 <button
                   onClick={handleNativePrint}
-                  className="w-full p-4 rounded-2xl bg-[#FAF9F6] border border-zinc-200 hover:bg-zinc-100 text-zinc-900 transition-colors flex items-center justify-between text-left cursor-pointer group"
+                  className="w-full p-4 rounded-2xl bg-[#FAF9F6] dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 transition-colors flex items-center justify-between text-left cursor-pointer group"
                 >
                   <div className="space-y-0.5">
                     <span className="text-sm font-semibold block">Print / Save as PDF</span>
-                    <span className="text-xs text-zinc-500 block">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 block">
                       Opens your system print dialogue with custom A4 margin formatting
                     </span>
                   </div>
-                  <Printer className="w-5 h-5 text-zinc-600 group-hover:scale-110 transition-transform shrink-0 ml-3" />
+                  <Printer className="w-5 h-5 text-zinc-600 dark:text-zinc-300 group-hover:scale-110 transition-transform shrink-0 ml-3" />
                 </button>
               </div>
             )}
 
-            <div className="pt-3 border-t border-zinc-100 text-[11px] text-zinc-400 font-mono text-center">
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 text-[11px] text-zinc-400 dark:text-zinc-500 font-mono text-center">
               Includes all 18 chapters · Verbatim WhatsApp bubbles · Timestamp analytics
             </div>
           </div>
@@ -2007,21 +2011,21 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
       {/* 5. Interactive Hot Take Deep Dive / Conspiracy Theory Modal */}
       {selectedHotTake && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 no-print animate-in fade-in duration-200">
-          <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border-2 border-orange-300 space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#FAF8F5] dark:bg-[#18181b] rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border-2 border-orange-300 dark:border-orange-500/40 space-y-6 max-h-[90vh] overflow-y-auto">
             {/* Header Stamp & Close Button */}
-            <div className="flex items-start justify-between gap-4 border-b border-orange-200/80 pb-4">
+            <div className="flex items-start justify-between gap-4 border-b border-orange-200/80 dark:border-orange-500/30 pb-4">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-900 border border-orange-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                  <Flame className="w-3 h-3 text-orange-600" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/80 text-orange-900 dark:text-orange-300 border border-orange-300 dark:border-orange-600/50 font-mono text-[10px] font-bold uppercase tracking-wider">
+                  <Flame className="w-3 h-3 text-orange-600 dark:text-orange-400" />
                   <span>DECLASSIFIED CONSPIRACY DOSSIER 🕵️‍♂️</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-editorial text-zinc-900 font-semibold tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-editorial text-zinc-900 dark:text-zinc-100 font-semibold tracking-tight">
                   The Deeper Dynamic Read
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedHotTake(null)}
-                className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-full hover:bg-orange-100/60 transition-colors cursor-pointer"
+                className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 rounded-full hover:bg-orange-100/60 dark:hover:bg-orange-950/60 transition-colors cursor-pointer"
                 title="Close Dossier"
               >
                 <X className="w-5 h-5" />
@@ -2029,11 +2033,11 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             </div>
 
             {/* The Original Quoted Hot Take */}
-            <div className="p-4 rounded-2xl bg-white border border-orange-200 shadow-2xs space-y-1.5">
+            <div className="p-4 rounded-2xl bg-white dark:bg-zinc-800/80 border border-orange-200 dark:border-orange-500/30 shadow-2xs space-y-1.5">
               <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-semibold block">
                 ORIGINAL EXHIBIT TAKE
               </span>
-              <p className="font-editorial text-base sm:text-lg text-zinc-900 italic font-medium leading-snug">
+              <p className="font-editorial text-base sm:text-lg text-zinc-900 dark:text-zinc-100 italic font-medium leading-snug">
                 “{selectedHotTake}”
               </p>
             </div>
@@ -2042,7 +2046,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             {isGeneratingTheory ? (
               <div className="py-10 space-y-4 text-center">
                 <div className="relative inline-flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full p-1 bg-white border-2 border-orange-300 shadow-md animate-pulse">
+                  <div className="w-16 h-16 rounded-full p-1 bg-white dark:bg-zinc-800 border-2 border-orange-300 dark:border-orange-500/50 shadow-md animate-pulse">
                     <img
                       src={indusAvatar}
                       alt="Indus analyzing"
@@ -2052,14 +2056,14 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                   <Sparkles className="w-5 h-5 text-orange-500 absolute -top-1 -right-1 animate-spin" />
                 </div>
                 <div className="space-y-1.5 max-w-sm mx-auto">
-                  <p className="text-sm font-semibold text-zinc-900">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                     Connecting psychological dots...
                   </p>
-                  <p className="text-xs text-zinc-500 font-mono">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                     Indus is analyzing unread receipts and calculating the exact ratio of plausible deniability...
                   </p>
                 </div>
-                <div className="w-48 mx-auto h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                <div className="w-48 mx-auto h-1.5 bg-orange-100 dark:bg-orange-950/60 rounded-full overflow-hidden">
                   <div className="h-full bg-orange-500 rounded-full animate-pulse w-2/3" />
                 </div>
               </div>
@@ -2067,16 +2071,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
               <div className="space-y-5">
                 {/* Conspiracy Title */}
                 <div>
-                  <span className="text-[10px] font-mono text-orange-700 uppercase tracking-widest font-bold">
+                  <span className="text-[10px] font-mono text-orange-700 dark:text-orange-400 uppercase tracking-widest font-bold">
                     THEORY CODENAME
                   </span>
-                  <h4 className="text-xl sm:text-2xl font-editorial font-bold text-zinc-900 mt-0.5">
+                  <h4 className="text-xl sm:text-2xl font-editorial font-bold text-zinc-900 dark:text-zinc-100 mt-0.5">
                     {theoryData.conspiracyTitle}
                   </h4>
                 </div>
 
                 {/* The Theory Exposition */}
-                <div className="space-y-3 text-xs sm:text-sm text-zinc-700 leading-relaxed font-sans bg-white/80 p-4 sm:p-5 rounded-2xl border border-zinc-200/80 shadow-2xs">
+                <div className="space-y-3 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed font-sans bg-white/80 dark:bg-zinc-800/60 p-4 sm:p-5 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 shadow-2xs">
                   {theoryData.theory.split('\n\n').map((paragraph, pIdx) => (
                     <p key={pIdx}>{paragraph}</p>
                   ))}
@@ -2085,16 +2089,16 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 {/* Evidence Points */}
                 {theoryData.evidencePoints && theoryData.evidencePoints.length > 0 && (
                   <div className="space-y-2.5">
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold block">
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-bold block">
                       SUPPORTING RECEIPTS & BEHAVIORAL EXHIBITS
                     </span>
                     <div className="space-y-2">
                       {theoryData.evidencePoints.map((point, ptIdx) => (
                         <div
                           key={ptIdx}
-                          className="p-3 rounded-xl bg-orange-50/60 border border-orange-200/70 text-xs text-zinc-800 flex items-start gap-2.5"
+                          className="p-3 rounded-xl bg-orange-50/60 dark:bg-orange-950/40 border border-orange-200/70 dark:border-orange-800/60 text-xs text-zinc-800 dark:text-zinc-200 flex items-start gap-2.5"
                         >
-                          <span className="font-mono font-bold text-orange-600 shrink-0 text-[11px]">
+                          <span className="font-mono font-bold text-orange-600 dark:text-orange-400 shrink-0 text-[11px]">
                             #{ptIdx + 1}
                           </span>
                           <span className="leading-relaxed">{point}</span>
@@ -2106,7 +2110,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
                 {/* The Uncomfortable Truth Callout */}
                 {theoryData.uncomfortableTruth && (
-                  <div className="p-4 rounded-2xl bg-zinc-900 text-white space-y-1 shadow-md">
+                  <div className="p-4 rounded-2xl bg-zinc-900 dark:bg-zinc-950 text-white space-y-1 shadow-md border border-zinc-800">
                     <div className="flex items-center gap-1.5 text-amber-400 font-mono text-[10px] font-bold uppercase tracking-wider">
                       <span>🔑 THE UNCOMFORTABLE TRUTH</span>
                     </div>
@@ -2117,10 +2121,10 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
                 )}
 
                 {/* Action Buttons */}
-                <div className="pt-2 flex flex-col sm:flex-row gap-2.5 border-t border-orange-200/80">
+                <div className="pt-2 flex flex-col sm:flex-row gap-2.5 border-t border-orange-200/80 dark:border-orange-500/30">
                   <button
                     onClick={() => handleAskAboutHotTake(selectedHotTake)}
-                    className="flex-1 py-2.5 px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                    className="flex-1 py-2.5 px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>Ask Indus About This</span>
@@ -2128,9 +2132,9 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
 
                   <button
                     onClick={handleCopyTheory}
-                    className="py-2.5 px-4 rounded-full bg-white hover:bg-orange-50 border border-orange-200 text-zinc-800 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="py-2.5 px-4 rounded-full bg-white dark:bg-zinc-800 hover:bg-orange-50 dark:hover:bg-zinc-700 border border-orange-200 dark:border-orange-500/40 text-zinc-800 dark:text-zinc-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    {theoryCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-zinc-500" />}
+                    {theoryCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
                     <span>{theoryCopied ? 'Copied Dossier!' : 'Copy Theory'}</span>
                   </button>
                 </div>
@@ -2138,7 +2142,7 @@ export const ReportPage: React.FC<ReportPageProps> = ({ reportData, onNavigate }
             ) : null}
 
             {/* Footer Notice */}
-            <div className="pt-2 text-[10px] font-mono text-zinc-400 text-center border-t border-orange-100">
+            <div className="pt-2 text-[10px] font-mono text-zinc-400 dark:text-zinc-500 text-center border-t border-orange-100 dark:border-zinc-800">
               Generated by Indus's behavioral model · Grounded in uploaded message timestamps
             </div>
           </div>

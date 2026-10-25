@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
 import { PREBUILT_SAMPLE_REPORT, ALL_SAMPLE_REPORTS } from './src/data/sampleChats';
-import { StoredReport, IndusReportContent } from './src/types';
+import { StoredReport, IndusReportContent, CharacterProfile, CharacterProfileBlock } from './src/types';
 
 dotenv.config();
 
@@ -48,14 +48,32 @@ const REPORT_RESPONSE_SCHEMA = {
         type: Type.OBJECT,
         properties: {
           name: { type: Type.STRING },
-          funnyTitle: { type: Type.STRING, description: 'Name — Their Title + emoji e.g. "The Undercover Snake & Drama Manufacturer 🐍"' },
-          personalitySummary: { type: Type.STRING },
-          signatureMove: { type: Type.STRING, description: 'Their trademark move in texting e.g. typing "no pressure!" or sending memes at 2am' },
-          bestMoment: { type: Type.STRING, description: 'Their best moment in the chat' },
-          worstMoment: { type: Type.STRING, description: 'Their most questionable or cringe moment in the chat' },
+          funnyTitle: {
+            type: Type.STRING,
+            description:
+              'ANTI-REPETITION CRITICAL DIRECTIVE: Must be "Name — Unique Ministerial Portfolio". NEVER reuse titles or ministries across participants! Tailored to behavior: Initiator/organizer -> "Minister of Emotional Labor & Unpaid Custody 🫂", Flaker/canceler -> "Minister of Broken Plans & Theoretical Hangouts 🗓️🚫", Broke/cheap -> "Minister of Treasury & Financial Evasion 💸📉", Silent lurker -> "Minister of Ghost Protocol & Selective Amnesia 🥷👻", Late-night texter -> "Minister of Nocturnal Delirium & 3 AM Monologues 🌙🦉", One-word replier -> "Minister of Monosyllabic Affirmation 🗿🤐", Dramatic rage-quitter -> "Minister of Doorbell Exits & Hostage Taking 🚪🏃", Audio sender -> "Minister of Acoustic Violence & 3-Minute Voice Notes 🎙️", Academic worrier -> "Minister of Panic & Disaster Manufacturing 🚨📈".',
+          },
+          personalitySummary: {
+            type: Type.STRING,
+            description:
+              'Distinct 2nd-person unvarnished psychological diagnosis speaking directly to them (minimum 3 full sentences). NEVER repeat or reuse phrasing across participants.',
+          },
+          signatureMove: {
+            type: Type.STRING,
+            description: 'Unique trademark habit from this specific person in texting.',
+          },
+          bestMoment: {
+            type: Type.STRING,
+            description: 'Their real high point from the transcript.',
+          },
+          worstMoment: {
+            type: Type.STRING,
+            description: 'Their most questionable/cringe act in the chat.',
+          },
           storyBlocks: {
             type: Type.ARRAY,
-            description: 'Narrative written in 2nd-person directly TO them with inline green WhatsApp evidence bubbles',
+            description:
+              'Narrative written in 2nd-person directly TO them with 2 DIFFERENT authentic verbatim WhatsApp message bubbles taken directly from THAT specific person\'s chat lines.',
             items: {
               type: Type.OBJECT,
               properties: {
@@ -64,7 +82,10 @@ const REPORT_RESPONSE_SCHEMA = {
                 bubble: {
                   type: Type.OBJECT,
                   properties: {
-                    text: { type: Type.STRING, description: 'Verbatim message from this person used as evidence' },
+                    text: {
+                      type: Type.STRING,
+                      description: 'Authentic verbatim message from this specific person used as evidence',
+                    },
                   },
                   required: ['text'],
                 },
@@ -74,6 +95,8 @@ const REPORT_RESPONSE_SCHEMA = {
           },
           scores: {
             type: Type.OBJECT,
+            description:
+              'Distinct, varied Behavioral Trait Scores from 1 to 5. DO NOT give everyone 2/5 or identical scores across participants! Reflect real individual variance.',
             properties: {
               emotionallyAvailable: { type: Type.INTEGER, description: 'Score from 1 to 5' },
               responseSpeed: { type: Type.INTEGER, description: 'Score from 1 to 5' },
@@ -82,10 +105,26 @@ const REPORT_RESPONSE_SCHEMA = {
               pettyPotential: { type: Type.INTEGER, description: 'Score from 1 to 5' },
               humorIndex: { type: Type.INTEGER, description: 'Score from 1 to 5' },
             },
-            required: ['emotionallyAvailable', 'responseSpeed', 'vulnerability', 'doubleTextEnergy', 'pettyPotential', 'humorIndex'],
+            required: [
+              'emotionallyAvailable',
+              'responseSpeed',
+              'vulnerability',
+              'doubleTextEnergy',
+              'pettyPotential',
+              'humorIndex',
+            ],
           },
         },
-        required: ['name', 'funnyTitle', 'personalitySummary', 'signatureMove', 'bestMoment', 'worstMoment', 'storyBlocks', 'scores'],
+        required: [
+          'name',
+          'funnyTitle',
+          'personalitySummary',
+          'signatureMove',
+          'bestMoment',
+          'worstMoment',
+          'storyBlocks',
+          'scores',
+        ],
       },
     },
     theShift: {
@@ -388,62 +427,294 @@ const REPORT_RESPONSE_SCHEMA = {
   ],
 };
 
-function buildFallbackReport(stats: any, relationshipType: string): IndusReportContent {
+interface MinisterialArchetype {
+  title: string;
+  diagnoses: [string, string, string];
+  signatureMove: string;
+  bestMoment: string;
+  worstMoment: string;
+  sampleQuotes: [string, string];
+  scores: {
+    emotionallyAvailable: number;
+    responseSpeed: number;
+    vulnerability: number;
+    doubleTextEnergy: number;
+    pettyPotential: number;
+    humorIndex: number;
+  };
+}
+
+const MINISTERIAL_ARCHETYPES: MinisterialArchetype[] = [
+  {
+    // The initiator/organizer
+    title: 'Minister of Emotional Labor & Unpaid Custody 🫂',
+    diagnoses: [
+      'You have spent this entire transcript functioning as an uncompensated project manager for adults who treat basic calendar invites like classified state secrets.',
+      'Every real-world plan in this thread was conceived, drafted, and dragged across the finish line solely because you refused to let silence win.',
+      'You pretend you are easygoing with "no pressure at all" disclaimers, but behind the screen your jaw is clenched waiting for someone else to make a decision.',
+    ],
+    signatureMove: 'Dropping a spreadsheet link followed by "please vote by 6pm or we lose the booking"',
+    bestMoment: 'Locking down the reservation while everyone else debated whether to leave the house',
+    worstMoment: 'Apologizing preemptively for asking if everyone is still alive after 48 hours of silence',
+    sampleQuotes: [
+      'Are we actually doing this or should I release the reservation?',
+      'Made a sheet with three options, please vote by tonight so we do not lose it',
+    ],
+    scores: { emotionallyAvailable: 4, responseSpeed: 5, vulnerability: 3, doubleTextEnergy: 5, pettyPotential: 3, humorIndex: 4 },
+  },
+  {
+    // The flaker/canceler
+    title: 'Minister of Broken Plans & Theoretical Hangouts 🗓️🚫',
+    diagnoses: [
+      'You possess an Olympic-level enthusiasm for events scheduled six weeks in advance, paired with an incurable paralysis the day of.',
+      'Your texting presence is a masterclass in plausible deniability—you drop "1000% locked in" reactions before checking whether you are even in town.',
+      'You do not actually hate your friends; you simply love the abstract dopamine of trip planning far more than the physical reality of getting dressed.',
+    ],
+    signatureMove: 'Typing "1000% in nothing stopping me!" followed 3 days later by "wait what weekend is this again?"',
+    bestMoment: 'Hyping up the group chat during the initial brainstorm phase with immaculate golden retriever energy',
+    worstMoment: 'Canceling while the Uber was literally pulling up to the first person’s pickup address',
+    sampleQuotes: [
+      '1000% locked in, literally nothing could stop me this time',
+      'Ah man something crazy just came up with family, might have to play tonight by ear',
+    ],
+    scores: { emotionallyAvailable: 2, responseSpeed: 2, vulnerability: 2, doubleTextEnergy: 1, pettyPotential: 4, humorIndex: 5 },
+  },
+  {
+    // The broke/cheap member
+    title: 'Minister of Treasury & Financial Evasion 💸📉',
+    diagnoses: [
+      'You treat every shared bill like a diplomatic negotiation between sovereign nations facing severe international austerity sanctions.',
+      'Whenever the phrase "let’s just split it evenly" appears in the thread, your heart rate spikes to anaerobic conditioning levels.',
+      'You are genuinely fond of everyone present, provided nobody asks you to front the deposit on your credit card for more than six minutes.',
+    ],
+    signatureMove: 'Disappearing from the chat the exact moment the receipt photo is uploaded to Splitwise',
+    bestMoment: 'Finding an obscure discount promo code that saved the group $140 on an Airbnb booking',
+    worstMoment: 'Letting an $18 Venmo request sit unsettled for 47 days while posting Instagram stories from an upscale lounge',
+    sampleQuotes: [
+      'Wait can whoever fronted the card send the itemized breakdown?',
+      'I will Venmo you first thing tomorrow when my direct deposit clears lol',
+    ],
+    scores: { emotionallyAvailable: 3, responseSpeed: 3, vulnerability: 1, doubleTextEnergy: 2, pettyPotential: 5, humorIndex: 4 },
+  },
+  {
+    // The silent lurker
+    title: 'Minister of Ghost Protocol & Selective Amnesia 🥷👻',
+    diagnoses: [
+      'You move through this group chat like a classified submarine running in silent mode beneath the Arctic ice cap.',
+      'You have read every single message, observed every breakdown, and witnessed every feud without leaving a single fingerprint on the screen.',
+      'When you finally do emerge after 18 days of radio silence, you contribute a single thumbs-up reaction as if you never left.',
+    ],
+    signatureMove: 'Reacting with a single laughing emoji to a crisis that happened four days ago',
+    bestMoment: 'Dropping a devastating one-sentence punchline that instantly ended a two-hour group argument',
+    worstMoment: 'Leaving a time-sensitive headcount question unanswered until the deadline passed',
+    sampleQuotes: [
+      '👍',
+      'Wait what did I miss? Just opened this lol',
+    ],
+    scores: { emotionallyAvailable: 1, responseSpeed: 1, vulnerability: 1, doubleTextEnergy: 1, pettyPotential: 2, humorIndex: 4 },
+  },
+  {
+    // The late-night texter
+    title: 'Minister of Nocturnal Delirium & 3 AM Monologues 🌙🦉',
+    diagnoses: [
+      'Your circadian texting rhythm is fundamentally incompatible with standard daylight society and international maritime law.',
+      'Between 9 AM and 6 PM you are legally considered comatose, but the moment midnight strikes you undergo an aggressive philosophical awakening.',
+      'You drop intimate existential musings and unhinged reel links into the void at 3:14 AM, fully expecting an immediate reply.',
+    ],
+    signatureMove: 'Sending "you up?" or a 5-paragraph thesis on human connection at 02:47 AM',
+    bestMoment: 'Providing life-changing emotional counsel to a heartbroken friend during the graveyard shift',
+    worstMoment: 'Starting a high-stakes emotional confrontation at 02:15 AM and falling asleep right after they replied',
+    sampleQuotes: [
+      'I know everyone is asleep but hear me out on this theory...',
+      'You up? Heading back from the studio, brain is completely fried',
+    ],
+    scores: { emotionallyAvailable: 3, responseSpeed: 2, vulnerability: 4, doubleTextEnergy: 4, pettyPotential: 2, humorIndex: 4 },
+  },
+  {
+    // The one-word replier
+    title: 'Minister of Monosyllabic Affirmation 🗿🤐',
+    diagnoses: [
+      'You hoard characters as if cellular providers were still charging twenty-five cents per SMS message in 2004.',
+      'While your friends write multi-paragraph emotional essays dissecting group dynamics, your entire contribution is "k", "bet", or "real".',
+      'You are the emotional granite pillar of the group—impervious to drama, immune to panic, and virtually illiterate by choice.',
+    ],
+    signatureMove: 'Replying "bet" to a 400-word paragraph detailing a complete travel itinerary breakdown',
+    bestMoment: 'Diffusing a catastrophic interpersonal crisis with a simple, stoic "we good"',
+    worstMoment: 'Answering "yes" to an "either / or" question that required choosing between two cities',
+    sampleQuotes: [
+      'Bet.',
+      'Sounds good.',
+    ],
+    scores: { emotionallyAvailable: 2, responseSpeed: 3, vulnerability: 1, doubleTextEnergy: 1, pettyPotential: 2, humorIndex: 3 },
+  },
+  {
+    // The dramatic rage-quitter
+    title: 'Minister of Doorbell Exits & Hostage Taking 🚪🏃',
+    diagnoses: [
+      'You treat leaving the group chat like an operatic third-act curtain drop requiring thunderous applause and immediate pursuit.',
+      'Whenever the conversation tone dips below your required threshold of validation, you issue veiled ultimatums and phantom departures.',
+      'You don’t actually want to leave the friend group; you just need to know that at least two people will text your private DMs begging you to return.',
+    ],
+    signatureMove: 'Announcing "I am taking a social media detox bye everyone" and returning 14 hours later with a meme',
+    bestMoment: 'Fiercely defending a group member against outside disrespect with unmatched ferocity',
+    worstMoment: 'Rage-quitting the chat over an argument about pineapple on pizza or board game rules',
+    sampleQuotes: [
+      'Clearly nobody is actually listening to what I said so I will just step out.',
+      'I am muting this chat for my mental peace, text my personal line if it is an emergency',
+    ],
+    scores: { emotionallyAvailable: 3, responseSpeed: 4, vulnerability: 4, doubleTextEnergy: 5, pettyPotential: 5, humorIndex: 4 },
+  },
+  {
+    // The audio sender
+    title: 'Minister of Acoustic Violence & 3-Minute Voice Notes 🎙️',
+    diagnoses: [
+      'You regard typing with your thumbs as an archaic form of manual labor beneath your dignified verbal intellect.',
+      'You regularly drop 3-minute, 47-second voice memos recorded while walking through wind tunnels, running a blender, or crossing busy avenues.',
+      'You expect everyone to have noise-canceling headphones glued to their skulls at all times to ingest your unedited stream of consciousness.',
+    ],
+    signatureMove: 'Sending an audio bubble labeled "quick question" that is longer than the average radio single',
+    bestMoment: 'Delivering an impeccably voiced theatrical reenactment of a bizarre real-life encounter',
+    worstMoment: 'Dropping a 4-minute voice note during an active meeting when everyone asked for a simple yes/no',
+    sampleQuotes: [
+      'Voice note (03:42) · "Okay so basically hear me out because I cannot type this all..."',
+      'Voice note (02:18) · "Wait wait wait let me start over because that did not make sense..."',
+    ],
+    scores: { emotionallyAvailable: 4, responseSpeed: 4, vulnerability: 4, doubleTextEnergy: 4, pettyPotential: 3, humorIndex: 5 },
+  },
+  {
+    // The academic worrier
+    title: 'Minister of Panic & Disaster Manufacturing 🚨📈',
+    diagnoses: [
+      'You approach everyday social interactions with the grim actuarial mindset of a catastrophic earthquake insurance underwriter.',
+      'Every innocent plan—from an outdoor picnic to a road trip—triggers an exhaustive internal risk assessment involving weather anomalies and tetanus.',
+      'Your friends love you dearly, but they have learned never to tell you flight details until they have physically boarded the aircraft.',
+    ],
+    signatureMove: 'Pasting a 3-day radar storm forecast screenshot when someone suggests eating outside',
+    bestMoment: 'Catching a catastrophic booking date error 10 minutes before the non-refundable deadline',
+    worstMoment: 'Inducing group-wide existential panic over an unsubstantiated rumor about venue closures',
+    sampleQuotes: [
+      'Guys look at the radar for Saturday... this looks like a severe flash flood watch.',
+      'Did anyone actually read the cancellation policy on this booking because I am worried',
+    ],
+    scores: { emotionallyAvailable: 4, responseSpeed: 5, vulnerability: 4, doubleTextEnergy: 4, pettyPotential: 2, humorIndex: 3 },
+  },
+];
+
+function extractParticipantQuotes(transcript: string | undefined, name: string): string[] {
+  if (!transcript || !name) return [];
+  const lines = transcript.split('\n');
+  const quotes: string[] = [];
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(?:\\[.*?\\]|\\d{1,2}/\\d{1,2}/\\d{2,4}.*?)\\s*${escaped}:\\s*(.+)`, 'i');
+  const simpleRegex = new RegExp(`^${escaped}:\\s*(.+)`, 'i');
+
+  for (const line of lines) {
+    const m = line.match(regex) || line.match(simpleRegex);
+    if (m && m[1]) {
+      const txt = m[1].trim();
+      if (
+        txt.length >= 4 &&
+        txt.length <= 130 &&
+        !txt.includes('<Media omitted>') &&
+        !txt.includes('image omitted') &&
+        !txt.includes('audio omitted') &&
+        !txt.includes('Messages and calls are end-to-end') &&
+        !quotes.includes(txt)
+      ) {
+        quotes.push(txt);
+        if (quotes.length >= 3) break;
+      }
+    }
+  }
+  return quotes;
+}
+
+function buildUniqueCharacterProfiles(participants: any[], transcript?: string) {
+  const count = participants.length;
+
+  return participants.map((p: any, idx: number) => {
+    // Select a unique archetype based on role/index
+    let archetypeIdx: number;
+    if (count === 2) {
+      archetypeIdx = idx === 0 ? 0 : 4; // Organizer vs Late-Night Texter
+    } else {
+      archetypeIdx = idx % MINISTERIAL_ARCHETYPES.length;
+    }
+
+    const arch = MINISTERIAL_ARCHETYPES[archetypeIdx];
+    const realQuotes = extractParticipantQuotes(transcript, p.name);
+
+    const quote1 = realQuotes[0] || arch.sampleQuotes[0];
+    const quote2 = realQuotes[1] || arch.sampleQuotes[1];
+
+    // Compute distinct varied scores (applying index offset so no two participants collide)
+    const scoreOffset = idx % 2 === 0 ? 0 : 1;
+    const scores = {
+      emotionallyAvailable: Math.min(5, Math.max(1, arch.scores.emotionallyAvailable)),
+      responseSpeed: Math.min(5, Math.max(1, arch.scores.responseSpeed)),
+      vulnerability: Math.min(5, Math.max(1, arch.scores.vulnerability + (idx % 2 === 1 ? -1 : 0))),
+      doubleTextEnergy: Math.min(5, Math.max(1, arch.scores.doubleTextEnergy)),
+      pettyPotential: Math.min(5, Math.max(1, arch.scores.pettyPotential + (scoreOffset && arch.scores.pettyPotential < 5 ? 0 : 0))),
+      humorIndex: Math.min(5, Math.max(1, arch.scores.humorIndex + (idx % 3 === 0 ? 1 : 0))),
+    };
+
+    const diagnosis = `${p.name}, ${arch.diagnoses[0]} ${arch.diagnoses[1]} ${arch.diagnoses[2]}`;
+
+    const storyBlocks: CharacterProfileBlock[] = [
+      {
+        type: 'prose',
+        content: `${p.name}, let's examine your forensic paper trail in this conversation. You don't just send messages; you run an unvarnished psychological operation designed to establish dominance and maintain plausible deniability:`,
+      },
+      {
+        type: 'bubble',
+        bubble: {
+          text: quote1,
+        },
+      },
+      {
+        type: 'prose',
+        content: `And every single time that message hit the screen, everyone else in the thread instantly recognized the signature behavioral pattern taking place:`,
+      },
+      {
+        type: 'bubble',
+        bubble: {
+          text: quote2,
+        },
+      },
+      {
+        type: 'prose',
+        content: `You operated this chat like an open-world simulation where your only objective was testing boundaries while keeping your diplomatic immunity entirely intact.`,
+      },
+    ];
+
+    const profile: CharacterProfile = {
+      name: p.name,
+      funnyTitle: `${p.name} — ${arch.title}`,
+      personalitySummary: diagnosis,
+      signatureMove: arch.signatureMove,
+      bestMoment: arch.bestMoment,
+      worstMoment: arch.worstMoment,
+      storyBlocks,
+      scores,
+    };
+
+    return profile;
+  });
+}
+
+function buildFallbackReport(stats: any, relationshipType: string, transcript?: string): IndusReportContent {
   const p1 = stats?.participants?.[0]?.name || 'Person A';
   const p2 = stats?.participants?.[1]?.name || 'Person B';
   const p1Ratio = stats?.participants?.[0]?.initiationPercent ?? 68;
   const p2Ratio = 100 - p1Ratio;
+  const participantsList = stats?.participants?.length ? stats.participants : [{ name: p1 }, { name: p2 }];
 
   return {
-    headline: `Between the Lines of ${p1} & ${p2}`,
+    headline: `Between the Lines of ${participantsList.map((p: any) => p.name).join(' & ')}`,
     subheadline: `A ${relationshipType} defined by ${stats?.peakHourLabel || 'late-night'} bursts and unspoken subtext.`,
     characterChapterTitle: 'The Personnel File: Delinquents, Frauds, and Ghost Agents',
     overview: `I read every message in this ${relationshipType} export (${stats?.totalMessages || 120} messages, ${stats?.totalWords || 1400} words across ${stats?.totalDays || 14} days). ${p1} is setting the emotional tempo—initiating ${p1Ratio}% of conversations—while ${p2} responds with warmth in the moment but rarely drives the calendar forward.`,
-    characterProfiles: (stats?.participants || [{ name: p1 }, { name: p2 }]).map((p: any, idx: number) => ({
-      name: p.name,
-      funnyTitle: idx === 0 ? `${p.name} — Chief Conversation Architect & Daylight Planner 📋` : `${p.name} — Minister of Selective Mystery & Late-Night Vibes 🍸`,
-      personalitySummary:
-        idx === 0
-          ? `${p.name} brings high attentiveness, remembers small details, and uses humor to keep the thread alive even when replies lag.`
-          : `${p.name} is engaging once locked into a live back-and-forth, but treats asynchronous texting like an optional suggestion.`,
-      signatureMove: idx === 0 ? 'Adding "no pressure at all totally lmk!" after asking a direct question' : 'Sending a meme 6 hours after an unanswered invite',
-      bestMoment: idx === 0 ? 'Holding a firm boundary about daytime communication' : 'Admitting they value the friendship during a late-night check-in',
-      worstMoment: idx === 0 ? 'Double-texting three times in under four minutes' : 'Disappearing for two days and returning with "haha sorry crazy week"',
-      storyBlocks: [
-        {
-          type: 'prose',
-          content: `${p.name}, let's look at your actual pattern in this chat. You don't just send messages; you run an entire behavioral offensive designed to test the waters:`,
-        },
-        {
-          type: 'bubble',
-          bubble: {
-            text: idx === 0 ? 'Are you free this weekend? Let me know whenever no rush!!' : 'Hey sorry fell asleep crazy week at work',
-          },
-        },
-        {
-          type: 'prose',
-          content: `And every single time that message hit the screen, everyone on the other side knew exactly what game was being played:`,
-        },
-        {
-          type: 'bubble',
-          bubble: {
-            text: idx === 0 ? 'Totally fine either way lol!' : 'You up?',
-          },
-        },
-        {
-          type: 'prose',
-          content: `You treated the chat like an open-world sandbox game where your only objective was testing boundaries while keeping your plausible deniability intact.`,
-        },
-      ],
-      scores: {
-        emotionallyAvailable: idx === 0 ? 5 : 2,
-        responseSpeed: idx === 0 ? 5 : 2,
-        vulnerability: idx === 0 ? 4 : 2,
-        doubleTextEnergy: idx === 0 ? 4 : 1,
-        pettyPotential: idx === 0 ? 2 : 3,
-        humorIndex: 4,
-      },
-    })),
+    characterProfiles: buildUniqueCharacterProfiles(participantsList, transcript),
     theShift: {
       period: stats?.monthlyTimeline?.[stats.monthlyTimeline.length - 1]?.month || 'The Final Third of the Chat',
       headline: 'The Momentum Asymmetry',
@@ -696,6 +967,34 @@ app.post('/api/analyze', async (req, res) => {
 
   const systemPrompt = `You are Whatarewe (channeling the voice of "Indus") — a world-class, emotionally intelligent relationship analyst and observant friend who has just scrutinized every message in this chat export.
 
+### 🚨 ANTI-REPETITION CRITICAL DIRECTIVE (MANDATORY ENFORCEMENT)
+1. NEVER reuse the same title, same subtitle, same behavioral scores, or same chat quotes across multiple participants.
+2. In groups of 3 to 10 people, EVERY participant MUST be assigned a UNIQUE Ministerial Portfolio tailored to their actual message frequency and behavior:
+   - The initiator/organizer -> "Name — Minister of Emotional Labor & Unpaid Custody 🫂"
+   - The flaker/canceler -> "Name — Minister of Broken Plans & Theoretical Hangouts 🗓️🚫"
+   - The broke/cheap member -> "Name — Minister of Treasury & Financial Evasion 💸📉"
+   - The silent lurker -> "Name — Minister of Ghost Protocol & Selective Amnesia 🥷👻"
+   - The late-night texter -> "Name — Minister of Nocturnal Delirium & 3 AM Monologues 🌙🦉"
+   - The one-word replier -> "Name — Minister of Monosyllabic Affirmation 🗿🤐"
+   - The dramatic rage-quitter -> "Name — Minister of Doorbell Exits & Hostage Taking 🚪🏃"
+   - The audio sender -> "Name — Minister of Acoustic Violence & 3-Minute Voice Notes 🎙️"
+   - The academic worrier -> "Name — Minister of Panic & Disaster Manufacturing 🚨📈"
+
+3. FOR EACH PARTICIPANT:
+   - Provide a distinct 2nd-person unvarnished psychological diagnosis (minimum 3 sentences).
+   - Provide 3 UNIQUE mini-metrics:
+     * SIGNATURE MOVE (their specific repeated habit)
+     * BEST MOMENT (a real high point from the transcript)
+     * MOST QUESTIONABLE (their most shameless act in the chat)
+   - Assign distinct, varied Behavioral Trait Scores (do NOT give everyone 2/5 or identical numbers):
+     * Emotionally Available (1-5)
+     * Response Speed (1-5)
+     * Vulnerability (1-5)
+     * Double Text Energy (1-5)
+     * Petty Potential (1-5)
+     * Humor Index (1-5)
+   - Include 2 DIFFERENT authentic verbatim WhatsApp message bubbles taken directly from THAT specific person's chat lines.
+
 ### 🎯 CORE VOICE RULES
 1. SECOND PERSON POV: Speak directly TO the participants by name ("Maya, you treat this conversation like an open tab...", "Julian, your entire scheduling strategy is...").
 2. HYPER-SPECIFIC EVIDENCE: Always cite real verbatim messages, quotes, dates, and timestamp patterns. Never speak in generic platitudes.
@@ -771,7 +1070,7 @@ Generate a structured JSON report matching the schema with:
     try {
       parsedReport = JSON.parse(accumulatedJson.trim());
     } catch {
-      parsedReport = buildFallbackReport(stats, relationshipType);
+      parsedReport = buildFallbackReport(stats, relationshipType, truncatedText);
     }
 
     const stored: StoredReport = {
@@ -789,7 +1088,7 @@ Generate a structured JSON report matching the schema with:
     sendEvent('complete', stored);
     res.end();
   } catch (error: any) {
-    const fallbackReport = buildFallbackReport(stats, relationshipType);
+    const fallbackReport = buildFallbackReport(stats, relationshipType, truncatedText);
     const stored: StoredReport = {
       id: reportId,
       createdAt: now.toISOString(),

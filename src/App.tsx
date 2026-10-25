@@ -7,6 +7,7 @@ import { ReportPage } from './pages/ReportPage';
 import { PricingPage } from './pages/PricingPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { PREBUILT_SAMPLE_REPORT, ALL_SAMPLE_REPORTS } from './data/sampleChats';
+import { ThemeProvider } from './context/ThemeContext';
 import { RelationshipType, StoredReport } from './types';
 
 export default function App() {
@@ -60,34 +61,36 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-zinc-900">
-      <Header currentPath={currentPath} onNavigate={handleNavigate} />
+    <ThemeProvider>
+      <div className="min-h-screen flex flex-col bg-[#FAF9F6] dark:bg-[#121214] text-zinc-900 dark:text-zinc-100 transition-colors duration-200">
+        <Header currentPath={currentPath} onNavigate={handleNavigate} />
 
-      <main className="flex-1">
-        {currentPath === '/' && (
-          <HomePage
-            onNavigate={handleNavigate}
-            onSelectRelationshipType={(type) => setSelectedRelationship(type)}
-          />
-        )}
+        <main className="flex-1">
+          {currentPath === '/' && (
+            <HomePage
+              onNavigate={handleNavigate}
+              onSelectRelationshipType={(type) => setSelectedRelationship(type)}
+            />
+          )}
 
-        {currentPath === '/setup' && (
-          <SetupPage
-            initialRelationshipType={selectedRelationship}
-            onReportGenerated={handleReportGenerated}
-          />
-        )}
+          {currentPath === '/setup' && (
+            <SetupPage
+              initialRelationshipType={selectedRelationship}
+              onReportGenerated={handleReportGenerated}
+            />
+          )}
 
-        {currentPath === '/report' && (
-          <ReportPage reportData={activeReport} onNavigate={handleNavigate} />
-        )}
+          {currentPath === '/report' && (
+            <ReportPage reportData={activeReport} onNavigate={handleNavigate} />
+          )}
 
-        {currentPath === '/pricing' && <PricingPage onNavigate={handleNavigate} />}
+          {currentPath === '/pricing' && <PricingPage onNavigate={handleNavigate} />}
 
-        {currentPath === '/privacy' && <PrivacyPage onNavigate={handleNavigate} />}
-      </main>
+          {currentPath === '/privacy' && <PrivacyPage onNavigate={handleNavigate} />}
+        </main>
 
-      <Footer onNavigate={handleNavigate} />
-    </div>
+        <Footer onNavigate={handleNavigate} />
+      </div>
+    </ThemeProvider>
   );
 }
